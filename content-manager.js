@@ -28,6 +28,22 @@ const BASE_DIR = __dirname;
 const DRAFTS_DIR = path.join(BASE_DIR, 'drafts');
 const FEEDBACK_FILE = path.join(BASE_DIR, 'feedback.json');
 
+// ─── KV helper (for cloud feedback fallback) ──────────────────────────────────
+
+async function kvGetFeedback() {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  try {
+    const res = await fetch(`${url}/get/${encodeURIComponent('agent:feedback')}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const json = await res.json();
+    if (!json.result) return null;
+    return typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+  } catch { return null; }
+}
+
 // ─── Tone of Voice System Prompt (prompt-cached) ─────────────────────────────
 
 const TONE_SYSTEM_PROMPT = `You are the content writer for Rockbusters Climbing — a climbing camp company run by Jany (Jan Novotny), based in Rodellar, Spain. Coaches include Klemen Becan, Petra Pivonkova, Laszlo Juhasz, and Arturo Aparicio.
@@ -124,17 +140,43 @@ story_frame — first-person, 200-350 words, specific, personal`;
 
 // ─── Feedback ─────────────────────────────────────────────────────────────────
 
-function loadFeedback() {
-  if (!fs.existsSync(FEEDBACK_FILE)) return { approved: [], rejected: [], comments: [] };
-  try { return JSON.parse(fs.readFileSync(FEEDBACK_FILE, 'utf8')); }
-  catch { return { approved: [], rejected: [], comments: [] }; }
+async function loadFeedback() {
+  // Try local file first (fast path for local runs)
+  if (fs.existsSync(FEEDBACK_FILE)) {
+    try { return JSON.parse(fs.readFileSync(FEEDBACK_FILE, 'utf8')); } catch {}
+  }
+  // Fall back to KV — used by CCR cloud agents that have no local feedback.json
+  const kv = await kvGetFeedback();
+  if (kv) return kv;
+  return { approved: [], rejected: [], comments: [], style_edits: [] };
 }
 
 function buildFeedbackContext(feedback) {
-  if (!feedback.comments || !feedback.comments.length) return '';
-  const recent = feedback.comments.slice(-8);
-  return `\n\n## Anna's feedback on recent drafts (learn from this)\n\n` +
-    recent.map(f => `- Post "${f.post}": "${f.comment}"`).join('\n');
+  const parts = [];
+
+  // Comments / revision instructions from Jany and Anna
+  if (feedback.comments?.length) {
+    const recent = feedback.comments.slice(-8);
+    parts.push(
+      `## Feedback on recent drafts (learn from this)\n\n` +
+      recent.map(f => `- "${f.post}": "${f.comment}"`).join('\n')
+    );
+  }
+
+  // Human text edits — these show the PREFERRED writing style
+  if (feedback.style_edits?.length) {
+    const recent = feedback.style_edits.slice(-6);
+    parts.push(
+      `## Text edits made before approval (these show the preferred style — match it)\n\n` +
+      recent.map(e =>
+        `- Post "${e.post}" — original: "${e.original.slice(0, 120).replace(/\n/g, ' ')}"\n` +
+        `  → edited to: "${e.edited.slice(0, 120).replace(/\n/g, ' ')}"`
+      ).join('\n')
+    );
+  }
+
+  if (!parts.length) return '';
+  return '\n\n' + parts.join('\n\n');
 }
 
 // ─── Image resizing ───────────────────────────────────────────────────────────
@@ -734,7 +776,7 @@ function saveDraft(postConfig) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function runJob(job, options = {}) {
-  const feedback = loadFeedback();
+  const feedback = await loadFeedback();
 
   // Allow regen.js to inject a revised brief via .regen_override.json
   let effectiveBrief = job.brief;
@@ -745,6 +787,19 @@ async function runJob(job, options = {}) {
       if (override.name === job.name && override.brief_suffix) {
         effectiveBrief = override.brief_suffix; // regen.js already prepended original brief
         console.log(`     ↩️  Using revised brief (regen mode)`);
+      }
+    } catch {}
+  }
+
+  // Inject plan-level comments written in the review app (daily-agent writes .plan_context.json)
+  const planContextFile = path.join(BASE_DIR, '.plan_context.json');
+  if (fs.existsSync(planContextFile)) {
+    try {
+      const ctx = JSON.parse(fs.readFileSync(planContextFile, 'utf8'));
+      if (ctx[job.name]) {
+        const planNote = `\n\n## Plan comments from Anna/Jany (incorporate these)\n\n${ctx[job.name]}`;
+        effectiveBrief = effectiveBrief + planNote;
+        console.log(`     💬 Plan comments injected into brief`);
       }
     } catch {}
   }

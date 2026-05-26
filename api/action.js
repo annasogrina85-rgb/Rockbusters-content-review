@@ -22,10 +22,25 @@ export default async function handler(req, res) {
 
     if (action === 'approve') {
       meta.status = 'approved';
+      meta.approved_at = new Date().toISOString();
       meta.updated_at = new Date().toISOString();
+
+      // Capture human text edits made before approving
+      const { edited_caption } = req.body || {};
+      if (edited_caption && edited_caption.trim() !== (data.caption || '').trim()) {
+        meta.human_edits = meta.human_edits || [];
+        meta.human_edits.push({
+          field: 'caption',
+          original: data.caption || '',
+          edited: edited_caption.trim(),
+          at: new Date().toISOString()
+        });
+        data.caption = edited_caption.trim(); // apply the edit to the stored draft
+      }
+
       data._meta = meta;
       await kv.set(`draft:${name}`, JSON.stringify(data));
-      return res.json({ success: true, status: 'approved' });
+      return res.json({ success: true, status: 'approved', human_edits: meta.human_edits?.length || 0 });
     }
 
     if (action === 'reject') {

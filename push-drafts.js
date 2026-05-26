@@ -346,6 +346,18 @@ async function pullDecisions() {
     if (remoteStatus === 'approved') {
       if (!feedback.approved.includes(name)) feedback.approved.push(name);
       feedback.rejected = feedback.rejected.filter(n => n !== name);
+
+      // Capture human text edits — these teach the agent preferred style
+      const humanEdits = remote._meta?.human_edits || [];
+      feedback.style_edits = feedback.style_edits || [];
+      const existingKeys = new Set(feedback.style_edits.map(e => e.key));
+      for (const edit of humanEdits) {
+        const key = `${name}:${edit.field}:${edit.at}`;
+        if (!existingKeys.has(key) && edit.original && edit.edited && edit.original !== edit.edited) {
+          feedback.style_edits.push({ key, post: name, field: edit.field, original: edit.original, edited: edit.edited, at: edit.at });
+          console.log(`  ✏️  Style edit captured for "${name}" — will teach agent`);
+        }
+      }
     }
     if (remoteStatus === 'rejected') {
       if (!feedback.rejected.includes(name)) feedback.rejected.push(name);
@@ -368,6 +380,9 @@ async function pullDecisions() {
   }
 
   fs.writeFileSync(FEEDBACK_FILE, JSON.stringify(feedback, null, 2));
+
+  // Sync feedback to KV so CCR cloud agents can access it
+  await kvSet('agent:feedback', JSON.stringify(feedback));
 
   if (!changed && !uploadsSaved) {
     console.log('  No changes — nothing new from Jany yet.');

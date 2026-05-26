@@ -418,11 +418,20 @@
       max-height: 120px;
       overflow: hidden;
       position: relative;
+      border-radius: 4px;
+      padding: 4px 6px;
+      margin: 0 -6px;
+      outline: none;
+      transition: background 0.15s, box-shadow 0.15s;
     }
 
-    .caption-text.expanded { max-height: none; }
+    .caption-text[contenteditable]:hover { background: #1c1c1c; cursor: text; }
+    .caption-text[contenteditable]:focus { background: #1c1c1c; max-height: none; overflow: visible; box-shadow: 0 0 0 1px #3a3a3a; }
+    .caption-text[contenteditable].edited { box-shadow: 0 0 0 1px #6699ff55; }
 
-    .caption-text::after {
+    .caption-text.expanded { max-height: none; overflow: visible; }
+
+    .caption-text:not(.expanded):not(:focus)::after {
       content: '';
       position: absolute;
       bottom: 0;
@@ -433,7 +442,9 @@
       pointer-events: none;
     }
 
-    .caption-text.expanded::after { display: none; }
+    .caption-label { display: flex; align-items: center; gap: 6px; }
+    .caption-edit-hint { color: #333; font-size: 9px; font-weight: normal; }
+    .caption-edited-badge { color: #6699ff; font-size: 9px; }
 
     .expand-btn {
       background: none;
@@ -1066,12 +1077,20 @@ function renderCard(draft) {
     photoArea = `<div class="photo-container">${imgTag}${overlay}</div>`;
   }
 
-  // ── Caption ──
+  // ── Caption (editable — edits are captured on Approve and teach the agent style) ──
   const captionHtml = draft.caption
     ? `<div class="caption-area">
-        <div class="caption-label">Caption</div>
-        <div class="caption-text" id="cap-${name}">${esc(draft.caption)}</div>
-        <button class="expand-btn" onclick="toggleCaption('${name}')">Show more</button>
+        <div class="caption-label">Caption
+          <span class="caption-edit-hint">· click to edit</span>
+          <span class="caption-edited-badge" id="cap-edited-${name}" style="display:none">✏ edited</span>
+        </div>
+        <div class="caption-text" id="cap-${name}"
+          contenteditable="true"
+          data-original="${esc(draft.caption)}"
+          oninput="onCaptionEdit('${name}')"
+          onfocus="this.classList.add('expanded')"
+          onblur="checkCaptionCollapse('${name}')"
+          >${esc(draft.caption)}</div>
       </div>`
     : '';
 
@@ -1310,20 +1329,54 @@ function setSlide(name, idx) {
 function toggleCaption(name) {
   const el = document.getElementById(`cap-${name}`);
   if (!el) return;
-  const expanded = el.classList.toggle('expanded');
-  el.nextElementSibling.textContent = expanded ? 'Show less' : 'Show more';
+  el.classList.toggle('expanded');
+}
+
+// Called when caption text is edited — shows "✏ edited" badge
+function onCaptionEdit(name) {
+  const el = document.getElementById(`cap-${name}`);
+  const badge = document.getElementById(`cap-edited-${name}`);
+  if (!el) return;
+  const original = (el.dataset.original || '').trim();
+  const current = el.innerText.trim();
+  const edited = current !== original;
+  el.classList.toggle('edited', edited);
+  if (badge) badge.style.display = edited ? '' : 'none';
+}
+
+// On blur: collapse back if text wasn't changed
+function checkCaptionCollapse(name) {
+  const el = document.getElementById(`cap-${name}`);
+  if (!el) return;
+  const original = (el.dataset.original || '').trim();
+  if (el.innerText.trim() === original) el.classList.remove('expanded');
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
 async function approve(name) {
-  await postAction(name, 'approve');
+  // Collect any caption edits made before approving
+  const captionEl = document.getElementById(`cap-${name}`);
+  const body = {};
+  if (captionEl) {
+    const current = captionEl.innerText.trim();
+    const original = (captionEl.dataset.original || '').trim();
+    if (current && current !== original) {
+      body.edited_caption = current;
+    }
+  }
+
+  await postAction(name, 'approve', body);
   const draft = drafts.find(d => d.name === name);
-  if (draft) { draft._meta = draft._meta || {}; draft._meta.status = 'approved'; }
+  if (draft) {
+    draft._meta = draft._meta || {};
+    draft._meta.status = 'approved';
+    if (body.edited_caption) draft.caption = body.edited_caption; // reflect edit locally
+  }
   cardCache[name] = cardFingerprint(draft);
   updateCardMeta(name);
   updateStats();
-  toast('✓ Approved', '#6fe06f');
+  toast(body.edited_caption ? '✓ Approved — text edit saved for learning' : '✓ Approved', '#6fe06f');
 }
 
 async function reject(name) {

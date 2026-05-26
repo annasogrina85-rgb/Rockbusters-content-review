@@ -152,7 +152,7 @@ async function regenRevised() {
 
 // ─── Generate new drafts for pending plan items ───────────────────────────────
 
-async function generateNewDrafts(plan, kvDrafts) {
+async function generateNewDrafts(plan, kvDrafts, planComments = {}) {
   const toGenerate = [];
 
   for (const post of plan.posts) {
@@ -164,7 +164,6 @@ async function generateNewDrafts(plan, kvDrafts) {
     if (post.blocker && !post.status?.includes('pending')) continue;
     if (status === 'blocked' || status === 'blocked_needs_context' || status === 'blocked_needs_participant_data') continue;
 
-    // Check if there's a matching job in content-manager.js
     toGenerate.push(post.name);
   }
 
@@ -173,12 +172,31 @@ async function generateNewDrafts(plan, kvDrafts) {
     return;
   }
 
-  console.log(`  🏔️  Generating ${toGenerate.length} new draft(s): ${toGenerate.join(', ')}`);
+  // Write plan comments to .plan_context.json so content-manager.js can inject them into briefs
+  const planContextFile = path.join(BASE_DIR, '.plan_context.json');
+  const relevantComments = {};
   for (const name of toGenerate) {
-    console.log(`     → ${name}`);
-    const { ok } = run('content-manager.js', ['--job', name], { silent: true });
-    if (ok) console.log(`     ✓ ${name} generated`);
-    else console.warn(`     ⚠ ${name} generation failed — check job name matches`);
+    const itemComments = planComments[name];
+    if (itemComments?.comments?.length) {
+      relevantComments[name] = itemComments.comments.map(c => `- ${c.from || 'anonymous'}: "${c.text}"`).join('\n');
+    }
+  }
+  if (Object.keys(relevantComments).length) {
+    fs.writeFileSync(planContextFile, JSON.stringify(relevantComments, null, 2));
+  }
+
+  try {
+    console.log(`  🏔️  Generating ${toGenerate.length} new draft(s): ${toGenerate.join(', ')}`);
+    for (const name of toGenerate) {
+      if (relevantComments[name]) console.log(`     💬 ${name} has plan comments — injecting into brief`);
+      console.log(`     → ${name}`);
+      const { ok } = run('content-manager.js', ['--job', name], { silent: true });
+      if (ok) console.log(`     ✓ ${name} generated`);
+      else console.warn(`     ⚠ ${name} generation failed — check job name matches`);
+    }
+  } finally {
+    // Always clean up temp file
+    if (fs.existsSync(planContextFile)) fs.unlinkSync(planContextFile);
   }
 }
 
@@ -525,11 +543,10 @@ async function runMorning() {
     if (d) kvDrafts[name] = d._meta || {};
   }
 
-  // 4. Check for plan-level comments from review app
+  // 4. Pull plan-level comments from review app — will be injected into new draft briefs
   const planComments = await getPlanComments();
   if (Object.keys(planComments).length) {
-    console.log(`  📝 Found ${Object.keys(planComments).length} plan comment(s) — will inject into briefs`);
-    // TODO Phase 4: inject into content-manager.js briefs
+    console.log(`  📝 Found ${Object.keys(planComments).length} plan comment(s) — injecting into briefs`);
   }
 
   // 5. Regen all needs_revision drafts
@@ -537,9 +554,9 @@ async function runMorning() {
   await regenRevised();
   const regenned = regenBefore; // names that were regenerated
 
-  // 6. Generate new drafts for pending plan items
+  // 6. Generate new drafts for pending plan items (pass plan comments so briefs pick them up)
   const newDraftsBefore = new Set(Object.keys(kvDrafts));
-  await generateNewDrafts(plan, kvDrafts);
+  await generateNewDrafts(plan, kvDrafts, planComments);
 
   // 7. Refresh all pCloud URLs (CDN links expire — re-resolve from _pcloud_paths)
   await refreshPCloudUrls();
