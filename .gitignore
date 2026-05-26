@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+.env.*.local
+.vercel
+.DS_Store
+*.log
+todo.md
+.regen_override.json
+drafts/*.json
+photos/
+output/

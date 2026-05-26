@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Rockbusters — Generated Designs</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0d0d;
+    font-family: 'Helvetica Neue', sans-serif;
+    color: #fff;
+    padding: 48px 32px;
+  }
+  h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 48px;
+  }
+  h1 span { color: #fff; }
+
+  section {
+    margin-bottom: 64px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .grid {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .card {
+    position: relative;
+  }
+  .card img {
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .card .label {
+    margin-top: 10px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+
+  /* carousel: show slides in a row, smaller */
+  .carousel-grid .card img { width: 200px; height: 250px; object-fit: cover; }
+
+  /* square: 1:1 */
+  .square-grid .card img { width: 280px; height: 280px; object-fit: cover; }
+
+  /* story/highlight: 9:16 */
+  .story-grid .card img { width: 160px; height: 285px; object-fit: cover; }
+
+  .refresh-note {
+    margin-top: 48px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<h1>Rockbusters / <span>Design Output</span></h1>
+
+<section>
+  <div class="section-title">Carousel — Mind & Technique Recap (5 slides)</div>
+  <div class="grid carousel-grid">
+    <div class="card"><img src="output/mind_technique_carousel/slide_01.jpg"><div class="label">Cover</div></div>
+    <div class="card"><img src="output/mind_technique_carousel/slide_02.jpg"><div class="label">The setup</div></div>
+    <div class="card"><img src="output/mind_technique_carousel/slide_03.jpg"><div class="label">The place</div></div>
+    <div class="card"><img src="output/mind_technique_carousel/slide_04.jpg"><div class="label">The turning point</div></div>
+    <div class="card"><img src="output/mind_technique_carousel/slide_05.jpg"><div class="label">Jany quote</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">Quote Card — "If you can talk, you can climb"</div>
+  <div class="grid square-grid">
+    <div class="card"><img src="output/jany_quote_card/quote_card.jpg"><div class="label">1080×1080</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">Highlight Covers</div>
+  <div class="grid story-grid">
+    <div class="card"><img src="output/highlight_camps/highlight_cover.jpg"><div class="label">Camps</div></div>
+    <div class="card"><img src="output/highlight_progress/highlight_cover.jpg"><div class="label">Progress</div></div>
+  </div>
+</section>
+
+<p class="refresh-note">Regenerate with: cd design-system && node generate.js --all</p>
+
+</body>
+</html>

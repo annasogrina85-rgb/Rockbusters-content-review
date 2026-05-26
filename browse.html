@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jany's Photo Library</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111; color: #eee; font-family: Helvetica Neue, sans-serif; }
+
+  .header { padding: 16px 20px 0; }
+  h1 { font-size: 16px; font-weight: 600; color: #fff; }
+  .subtitle { font-size: 12px; color: #666; margin-top: 3px; }
+
+  .tabs {
+    display: flex; gap: 6px; padding: 12px 20px 0;
+    overflow-x: auto; scrollbar-width: none; flex-wrap: wrap;
+  }
+  .tab {
+    background: #222; color: #999; border: none; padding: 6px 12px;
+    border-radius: 20px; cursor: pointer; font-size: 12px; white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .tab:hover { background: #333; color: #ddd; }
+  .tab.active { background: #f90; color: #000; font-weight: 600; }
+
+  .toolbar {
+    position: sticky; top: 0; background: #111; padding: 10px 20px;
+    border-bottom: 1px solid #1e1e1e; z-index: 10;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  button {
+    background: #2a2a2a; color: #eee; border: none; padding: 7px 14px;
+    border-radius: 5px; cursor: pointer; font-size: 13px;
+  }
+  button:hover { background: #333; }
+  button.primary { background: #f90; color: #000; font-weight: 600; }
+  #count { font-size: 13px; color: #888; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px; padding: 16px 20px;
+  }
+  .card {
+    position: relative; cursor: pointer; border-radius: 6px; overflow: hidden;
+    border: 2px solid transparent; transition: border-color 0.12s;
+  }
+  .card:hover { border-color: #444; }
+  .card.selected { border-color: #f90; }
+  .card img { width: 100%; display: block; aspect-ratio: 3/2; object-fit: cover; background: #1a1a1a; }
+  .card .label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    font-size: 10px; padding: 16px 6px 5px; color: #aaa;
+    display: flex; justify-content: space-between;
+  }
+  .card .label .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 85%; }
+  .card .check { color: #f90; font-weight: bold; display: none; flex-shrink: 0; }
+  .card.selected .check { display: inline; }
+
+  #output {
+    background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 6px;
+    padding: 14px 20px; font-family: monospace; font-size: 12px; color: #7cf;
+    white-space: pre-wrap; margin: 0 20px 20px; display: none; line-height: 1.6;
+  }
+  .folder-label {
+    font-size: 11px; color: #555; padding: 4px 20px 8px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Jany's Photo Library</h1>
+  <div class="subtitle">Click to select · Copy paths to use in post configs</div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="toolbar">
+  <button onclick="clearAll()">Clear selection</button>
+  <button class="primary" onclick="showSelected()">Copy selected paths</button>
+  <span id="count">0 selected</span>
+</div>
+
+<div id="folder-label" class="folder-label"></div>
+<div class="grid" id="grid"></div>
+<div id="output"></div>
+
+<script>
+const index = {"2026_may_klemen":["DSC01277.JPG","DSC01283.JPG","DSC01284.JPG","DSC01285.JPG","DSC01286.JPG","DSC01287.JPG","DSC01288.JPG","DSC01297.JPG","DSC01299.JPG","DSC01301.JPG","DSC01308.JPG","DSC01312.JPG","DSC01315.JPG","DSC01318.JPG","DSC01320.JPG","DSC01333.JPG","DSC01336.JPG","DSC01337.JPG","DSC01343.JPG","DSC01345.JPG","DSC01347.JPG","DSC01357.JPG","DSC01361.JPG","DSC01366.JPG","DSC01367.JPG","DSC01368.JPG","DSC01369.JPG","DSC01370.JPG","DSC01374.JPG","DSC01377.JPG","DSC01379.JPG","DSC01384.JPG","DSC01385.JPG","DSC01386.JPG","DSC01387.JPG","DSC01388.JPG","DSC01390.JPG","DSC01391.JPG","DSC01392.JPG","DSC01393.JPG","DSC01394.JPG","DSC01395.JPG","DSC01396.JPG","DSC01399.JPG","DSC01400.JPG","DSC01403.JPG","DSC01404.JPG","DSC01406.JPG","DSC01407.JPG","DSC01408.JPG","DSC01409.JPG","DSC01410.JPG","DSC01411.JPG","DSC01413.JPG","DSC01415.JPG","DSC01417.JPG","DSC01418.JPG","DSC01419.JPG","DSC01421.JPG","DSC01427.JPG","DSC01428.JPG","DSC01432.JPG","DSC01434.JPG","DSC01435.JPG","DSC01436.JPG","DSC01438.JPG","DSC01440.JPG","DSC01441.JPG","DSC01444.JPG","DSC01445.JPG","DSC01446.JPG","DSC01447.JPG","DSC01448.JPG","DSC01450.JPG","DSC01451.JPG","DSC01453.JPG","DSC01454.JPG","DSC01455.JPG","DSC01456.JPG","DSC01460.JPG","DSC01463.JPG","DSC01470.JPG","DSC01471.JPG","DSC01472.JPG","DSC01474.JPG","DSC01477.JPG","DSC01478.JPG","DSC01480.JPG","DSC01483.JPG","DSC01484.JPG","DSC01485.JPG","DSC01491.JPG","DSC01498.JPG","DSC01499.JPG","DSC01501.JPG","DSC01504.JPG","DSC01505.JPG","DSC01509.JPG","DSC01510.JPG","DSC01515.JPG","DSC01517.JPG","DSC01520.JPG","DSC01521.JPG","DSC01522.JPG","DSC01523.JPG","DSC01530.JPG","DSC01531.JPG","DSC01533.JPG","DSC01536.JPG","DSC01538.JPG","DSC01540.JPG","DSC01542.JPG","DSC01543.JPG","DSC01544.JPG","DSC01548.JPG","DSC01550.JPG","DSC01552.JPG","DSC01557.JPG","DSC01561.JPG","DSC01565.JPG","DSC01567.JPG","DSC01569.JPG","DSC01575.JPG","DSC01583.JPG","DSC01584.JPG","DSC01586.JPG","DSC01589.JPG","DSC01590.JPG","DSC01591.JPG","DSC01592.JPG","DSC01595.JPG","DSC01599.JPG","DSC01600.JPG","DSC01601.JPG","DSC01602.JPG","DSC01605.JPG","DSC01606.JPG","DSC01608.JPG","DSC01612.JPG","DSC01613.JPG","DSC01615.JPG","DSC01617.JPG","DSC01619.JPG","DSC01623.JPG","DSC01624.JPG","DSC01625.JPG","DSC01627.JPG","DSC01628.JPG","DSC01629.JPG","DSC01630.JPG","DSC01631.JPG","DSC01632.JPG","DSC01633.JPG","DSC01639.JPG","DSC01641.JPG","DSC01644.JPG","DSC01650.JPG","DSC01651.JPG","DSC01663.JPG","DSC01665.JPG","DSC01666.JPG","DSC01668.JPG","DSC01671.JPG","DSC01673.JPG","DSC01674.JPG","DSC01675.JPG","DSC01676.JPG","DSC01679.JPG","DSC01768.JPG","DSC01769.JPG","DSC01770.JPG","DSC01771.JPG","DSC01773.JPG","DSC01774.JPG","DSC01777.JPG","DSC01780.JPG","DSC01781.JPG","DSC01782.JPG","DSC01783.JPG","DSC01784.JPG","DSC01785.JPG","DSC01787.JPG","DSC01792.JPG","DSC01793.JPG","DSC01797.JPG","DSC01798.JPG","DSC01801.JPG","DSC01807.JPG","DSC01811.JPG","DSC01813.JPG","DSC01814.JPG","DSC01821.JPG","DSC01825.JPG","DSC01829.JPG","DSC01830.JPG","DSC01831.JPG","DSC01832.JPG","DSC01833.JPG","DSC01834.JPG","DSC01836.JPG","DSC01840.JPG","DSC01844.JPG","DSC01845.JPG","DSC01848.JPG","DSC01849.JPG","DSC01851.JPG","DSC01858.JPG","DSC01860.JPG","DSC01862.JPG","DSC01866.JPG","DSC01869.JPG","DSC01871.JPG","DSC01877.JPG","DSC01883.JPG","DSC01885.JPG","DSC01887.JPG","DSC01896.JPG","DSC01900.JPG","DSC01902.JPG","DSC01904.JPG","DSC01905.JPG","DSC01906.JPG","DSC01907.JPG","DSC01908.JPG","DSC01909.JPG","DSC01910.JPG","DSC01922.JPG","DSC01932.JPG","DSC01937.JPG","DSC01938.JPG","DSC01941.JPG","DSC01946.JPG","DSC01951.JPG","DSC01960.JPG","DSC01980.JPG","DSC01991.JPG","DSC01993.JPG","DSC01999.JPG","DSC02001.JPG","DSC02003.JPG","DSC02004.JPG","DSC02006.JPG","DSC02008.JPG","DSC02009.JPG","DSC02011.JPG","DSC02013.JPG","DSC02018.JPG","DSC02024.JPG","DSC02025.JPG","DSC02034.JPG","DSC02039.JPG","DSC02043.JPG","DSC02045.JPG","DSC02049.JPG","DSC02055.JPG","DSC02065.JPG","DSC02092.JPG","DSC02099.JPG","DSC02105.JPG","DSC02111.JPG","DSC02115.JPG","DSC02121.JPG","DSC02122.JPG","DSC02129.JPG","DSC02131.JPG","DSC02137.JPG","DSC02142.JPG","DSC02149.JPG","DSC02150.JPG","DSC02154.JPG","DSC02178.JPG","DSC02185.JPG","DSC02188.JPG","DSC02191.JPG","DSC02280.JPG","DSC02298.JPG","DSC02326.JPG","DSC02328.JPG","DSC02368.JPG","DSC02403.JPG","DSC02407.JPG","DSC02411.JPG","DSC02425.JPG"],"siurana":["Alexey 7a Siurana rockbusters.net.jpg","Alexey Mandragora 7b+ Siurana  rockbusters.net 1.jpg","Alexey Mandragora 7b+ Siurana rockbusters.net.jpg","Andrlac Papagora 7c Siurana rockbusters.net.jpg","Ben Siurana rockbusters.net 1.jpg","Ben Siurana rockbusters.net 2.jpg","Ben Siurana rockbusters.net 3.jpg","Ben Siurana rockbusters.net 4.jpg","Ben Siurana rockbusters.net.jpg","Brad Siurana 7a 2.jpg","Brad Siurana 7a 3.jpg","Brad Siurana 7a 4.jpg","Brad Siurana 7a+ 9.jpg","Brad Siurana 7a.jpg","Brad Siurana 7b 2.jpg","Brad Siurana 7b 3.jpg","Brad Siurana 7b 4.jpg","Brad Siurana 7b 5.jpg","Brad Siurana 7b 6.jpg","Brad Siurana 7b 7.jpg","Brad Siurana 7b 8.jpg","Brad Siurana 7b.jpg","Chris Siurana 7b 2.jpg","Chris Siurana 7b 3.jpg","Chris Siurana 7b 4.jpg","Chris Siurana 7b 5.jpg","Chris Siurana 7b.jpg","Chris Siurana Papagora 7b+ 2.jpg","Chris Siurana Papagora 7b+ 3.jpg","Chris Siurana Papagora 7b+ 4.jpg","Chris Siurana Papagora 7b+ 5.jpg","Chris Siurana Papagora 7b+.jpg","DSC00123.jpg","Daniel 7b Siurana rockbusters.net.jpg","Daniel Mandragora 7b+ Siurana rockbusters.net 1.jpg","Daniel Mandragora 7b+ Siurana rockbusters.net 2.jpg","Daniel Mandragora 7b+ Siurana rockbusters.net.jpg","Elena Margalef 2018 2.jpg","Elena Margalef 2018 3.jpg","Felipe Siurana 6c 2.jpg","Felipe Siurana 6c.jpg","Fra Siurana rockbusters.net 1.jpg","Fra Siurana rockbusters.net.jpg","Klemen Primavera Siurana 8a+ rockbusters.net 1.jpg","Klemen Primavera Siurana 8a+ rockbusters.net.jpg","Klemen Primavera Siurana 8b rockbusters.net 1.jpg","Klemen Primavera Siurana 8b rockbusters.net.jpg","Luca 6c+ Siurana rockbusters.net 1.jpg","Luca 6c+ Siurana rockbusters.net 2.jpg","Luca 6c+ Siurana rockbusters.net 3.jpg","Luca 6c+ Siurana rockbusters.net.jpg","Luca 7a Siurana rockbusters.net 1.jpg","Luca 7a Siurana rockbusters.net 2.jpg","Luca 7a Siurana rockbusters.net 3.jpg","Luca 7a Siurana rockbusters.net 4.jpg","Luca 7a Siurana rockbusters.net 5.jpg","Luca 7a Siurana rockbusters.net.jpg","Robin Siurana 6a 2.jpg","Robin Siurana 6a 3.jpg","Robin Siurana 6a.jpg","Shaun Siurana 7a+ 1.jpg","Shaun Siurana 7a+ 2.jpg","Shaun Siurana 7a+ 3.jpg","Shaun Siurana 7a+ 4.jpg","Shaun Siurana 7a+.jpg","Stephane Arboli rockbusters.net.jpg","Svein Mandragora 7b+ Siurana rockbusters.net.jpg","Svein Siurana 7a+.jpg","Svein Siurana 7a+1.jpg","Svein Siurana 7a+2.jpg","Svein Siurana 7a+3.jpg","adria.jpg"],"ceuse_2024":["Fabian 6b Ceuse rockbusters.net 1.JPG","Fabian 6b Ceuse rockbusters.net 2.JPG","Fabian 6b Ceuse rockbusters.net 3.JPG","Fabian 6b Ceuse rockbusters.net 4.JPG","Fabian 6b Ceuse rockbusters.net.JPG","Luci 6b+ Ceuse rockbusters.net 1.JPG","Luci 6b+ Ceuse rockbusters.net 2.JPG","Luci 6b+ Ceuse rockbusters.net 4.JPG","Luci 6b+ Ceuse rockbusters.net 5.JPG","Luci 6b+ Ceuse rockbusters.net 6.JPG","Luci 6b+ Ceuse rockbusters.net 7.JPG","Luci 6b+ Ceuse rockbusters.net.JPG","Neil 6+ Ceuse rockbusters.net 1.JPG","Neil 6b+ Ceuse rockbusters.net.JPG","Svein 6c+ Ceuse rockbusters.net 1.JPG","Svein 6c+ Ceuse rockbusters.net 2.JPG","Svein 6c+ Ceuse rockbusters.net.JPG"],"margalef_2024":["Cassey 6b Margalef rockbusters.net (10).JPG","Cassey 6b Margalef rockbusters.net (11).JPG","Cassey 6b Margalef rockbusters.net (12).JPG","Cassey 6b Margalef rockbusters.net (13).JPG","Cassey 6b Margalef rockbusters.net (2).JPG","Cassey 6b Margalef rockbusters.net (3).JPG","Cassey 6b Margalef rockbusters.net (4).JPG","Cassey 6b Margalef rockbusters.net (5).JPG","Cassey 6b Margalef rockbusters.net (6).JPG","Cassey 6b Margalef rockbusters.net (7).JPG","Cassey 6b Margalef rockbusters.net (8).JPG","Cassey 6b Margalef rockbusters.net (9).JPG","Cassey 6b Margalef rockbusters.net.JPG","Julia 6b Margalef rockbusters.net (10).JPG","Julia 6b Margalef rockbusters.net (11).JPG","Julia 6b Margalef rockbusters.net (12).jpg","Julia 6b Margalef rockbusters.net (13).JPG","Julia 6b Margalef rockbusters.net (2).JPG","Julia 6b Margalef rockbusters.net (3).JPG","Julia 6b Margalef rockbusters.net (4).JPG","Julia 6b Margalef rockbusters.net (5).JPG","Julia 6b Margalef rockbusters.net (6).JPG","Julia 6b Margalef rockbusters.net (7).JPG","Julia 6b Margalef rockbusters.net (8).JPG","Julia 6b Margalef rockbusters.net (9).JPG","Julia 6b Margalef rockbusters.net.JPG","Kara 7b Margalef 1.JPG","Kara 7b Margalef 2.JPG","Kara 7b Margalef 3.JPG","Kara 7b Margalef 4.JPG","Kara 7b Margalef.JPG","Luci 7b Margalef .JPG","Luci 7b Margalef 1.JPG","Luci 7b Margalef 2.JPG","Luci 7b Margalef 3.JPG","Luci 7b Margalef 4.JPG","Mr. Argentina 7c Margalef 1.JPG","Mr. Argentina 7c Margalef 2.JPG","Mr. Argentina 7c Margalef 5.JPG","Mr. Argentina 7c Margalef.JPG","Neil 7b Margalef .JPG","Neil 7b Margalef 1.JPG","Neil 7b Margalef 2.JPG","Neil 7b Margalef 3.JPG","Neil 7b Margalef 4.JPG"],"selection":["Alexander 5+ Frankenjura rockbusters.net 1.JPG","Alexander 5+ Frankenjura rockbusters.net 3.JPG","Alexander 5+ Frankenjura rockbusters.net 4.JPG","Alexander 5+ Frankenjura rockbusters.net.JPG","Arthur 7b+ Zillertal rockbusters.net 1.JPG","Arthur 7b+ Zillertal rockbusters.net 2.JPG","Athur 7b+ Zillertal rockbusters.net.JPG","Dave Frankenjura 2024 rockbusters.net 1.JPG","Dave Frankenjura 2024 rockbusters.net 2.JPG","Dave Frankenjura 2024 rockbusters.net 3.JPG","Faith 6c+ Zillertal rockbusters.net 1.JPG","Faith 6c+ Zillertal rockbusters.net 2.JPG","Faith 6c+ Zillertal rockbusters.net 3.JPG","Faith 6c+ Zillertal rockbusters.net 4.JPG","Faith 6c+ Zillertal rockbusters.net 5.JPG","Faith 6c+ Zillertal rockbusters.net 6.JPG","Faith 6c+ Zillertal rockbusters.net 7.JPG","Faith 6c+ Zillertal rockbusters.net.JPG","Faith 7b+ Zillertal rockbusters.net 11.JPG","Faith 7b+ Zillertal rockbusters.net 13.JPG","Faith 7b+ Zillertal rockbusters.net.JPG","Joe 6a Zillertal rockbusers.net 2.JPG","Joe 6a Zillertal rockbusers.net 3.JPG","Joe 6a Zillertal rockbusers.net 6.JPG","Joe 6a Zillertal rockbusers.net.JPG","Joe 6a Zillertal rockbusers.net4.JPG","Joe 6a Zillertal rockbusters.net.JPG","Luci Frankenjura 5+ rockbusters.net 1.JPG","Luci Frankenjura 5+ rockbusters.net 3.JPG","Luci Frankenjura 5+ rockbusters.net 4.JPG","Luci Frankenjura 5+ rockbusters.net.JPG","Sterling 6c Frankenjura rockbusters.net 2.JPG","Sterling 6c Frankenjura rockbusters.net 3.JPG","Sterling 6c Frankenjura rockbusters.net.JPG","Timon 8a Zillertal rockbusters.net 1.JPG","Timon 8a Zillertal rockbusters.net 2.JPG","Timon 8a Zillertal rockbusters.net 3.JPG","Timon 8a Zillertal rockbusters.net 4.JPG","Timon 8a Zillertal rockbusters.net 5.JPG","Timon 8a Zillertal rockbusters.net.JPG","Uli 6b Zillertal rockbusters.net 1.JPG","Uli 6b Zillertal rockbusters.net 2.JPG","Uli 6b Zillertal rockbusters.net 3.JPG","Uli 6b Zillertal rockbusters.net 5.JPG","Uli 6b Zillertal rockbusters.net 6.JPG","Uli 6b Zillertal rockbusters.net.JPG","Vitali 6a Zillertal rockbusteres.net .JPG","Vitali 6b Zillertal rockbusteres.net .JPG","Vitali 6b Zillertal rockbusteres.net 1 .JPG","Vitali 6b Zillertal rockbusters.net 3.JPG","Vitali 6b Zillertal rockbusters.net 4.JPG","Vitali 6c Frankenjura rockbusters.net 2.JPG","Vitali 7c Frankenjura rockbusters.net 3.JPG","Vitali 7c Frankenjura rockbusters.net.JPG","faith 7b+ Zillertal rockbusters.net 12.JPG"],"sella_2024_fall":["David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (10).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (11).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (12).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (13).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (14).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (15).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (16).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (17).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (18).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (19).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (2).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (20).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (21).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (22).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (23).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (24).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (3).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (4).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (5).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (6).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (7).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (8).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net (9).JPG","David, Kimi 8b, Wildside, Sella, Spain, rockbusters.net.JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (10).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (11).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (12).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (13).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (14).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (15).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (16).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (17).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (18).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (19).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (2).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (20).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (21).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (22).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (23).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (24).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (25).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (26).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (3).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (4).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (5).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (6).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (7).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (8).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net (9).JPG","Prudence, Ultimo Mono 8b, Wildside, Sella, Spain, rockbusters.net.JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (10).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (11).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (12).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (2).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (3).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (4).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (5).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (6).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (7).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (8).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net (9).JPG","Svein Nido Amoroso 7b+ Sella Wildside Rockbusters.net.JPG"],"rodellar_2025":["DSC08452.JPG","DSC08455.JPG","DSC08456.JPG","DSC08461.JPG","DSC08464.JPG","DSC08469.JPG","DSC08472.JPG","DSC08473.JPG","DSC08476.JPG","DSC08477.JPG","DSC08478.JPG","DSC08479.JPG","DSC08483.JPG","DSC08484.JPG","DSC08485.JPG","DSC08487.JPG","DSC08493.JPG","DSC08494.JPG","DSC08495.JPG","DSC08498.JPG","DSC08499.JPG","DSC08501.JPG","DSC08507.JPG","DSC08509.JPG","DSC08516.JPG","DSC08517.JPG","DSC08518.JPG","DSC08521.JPG","DSC08522.JPG","DSC08529.JPG","DSC08531.JPG","DSC08533.JPG","DSC08534.JPG","DSC08535.JPG","DSC08539.JPG","DSC08544.JPG","DSC08549.JPG","DSC08551.JPG","DSC08557.JPG","DSC08561.JPG","DSC08565.JPG","DSC08567.JPG","DSC08570.JPG","DSC08577.JPG","DSC08580.JPG","DSC08581.JPG","DSC08582.JPG","DSC08583.JPG","DSC08586.JPG","DSC08589.JPG","DSC08590.JPG","DSC08592.JPG","DSC08595.JPG","DSC08597.JPG","DSC08598.JPG","DSC08600.JPG","DSC08601.JPG","DSC08608.JPG","DSC08610.JPG","DSC08613.JPG","DSC08619.JPG","DSC08622.JPG","DSC08623.JPG","DSC08627.JPG","DSC08629.JPG","DSC08630.JPG","DSC08632.JPG","DSC08636.JPG","DSC08639.JPG","DSC08643.JPG","DSC08647.JPG","DSC08649.JPG","DSC08655.JPG","DSC08660.JPG","DSC08662.JPG","DSC08664.JPG","DSC08670.JPG","DSC08671.JPG","DSC08674.JPG","DSC08675.JPG","DSC08676.JPG","DSC08677.JPG","DSC08678.JPG","DSC08680.JPG","DSC08681.JPG","DSC08682.JPG","DSC08683.JPG","DSC08686.JPG","DSC08687.JPG","DSC08688.JPG","DSC08689.JPG","DSC08691.JPG","DSC08693.JPG","DSC08694.JPG","DSC08696.JPG","DSC08697.JPG","DSC08700.JPG","DSC08702.JPG","DSC08703.JPG","DSC08704.JPG","DSC08705.JPG","DSC08706.JPG","DSC08707.JPG","DSC08708.JPG","DSC08709.JPG","DSC08710.JPG","DSC08711.JPG","DSC08712.JPG","DSC08713.JPG","DSC08718.JPG","DSC08720.JPG","DSC08721.JPG","DSC08723.JPG","DSC08731.JPG","DSC08737.JPG","DSC08738.JPG","DSC08739.JPG","DSC08740.JPG","DSC08742.JPG","DSC08747.JPG","DSC08748.JPG","DSC08750.JPG","DSC08753.JPG","DSC08755.JPG","DSC08757.JPG","DSC08759.JPG","DSC08760.JPG","DSC08761.JPG","DSC08763.JPG","DSC08764.JPG","DSC08765.JPG","DSC08766.JPG","DSC08767.JPG","DSC08768.JPG","DSC08771.JPG","DSC08772.JPG","DSC08774.JPG","DSC08775.JPG","DSC08778.JPG","DSC08780.JPG","DSC08781.JPG","DSC08782.JPG","DSC08794.JPG","DSC08809.JPG","DSC08816.JPG","DSC08819.JPG","DSC08822.JPG","DSC08827.JPG","DSC08829.JPG","DSC08830.JPG","DSC08834.JPG","DSC08839.JPG","DSC08840.JPG","DSC08843.JPG","DSC08845.JPG","DSC08846.JPG","DSC08850.JPG","DSC08853.JPG","DSC08855.JPG","DSC08857.JPG","DSC08868.JPG","DSC08869.JPG","DSC08885.JPG","DSC08888.JPG","DSC08890.JPG","DSC08894.JPG","DSC08898.JPG","DSC08900.JPG","DSC08902.JPG","DSC08907.JPG","DSC08914.JPG","DSC08929.JPG","DSC08939.JPG","DSC08945.JPG","DSC08953.JPG","DSC08955.JPG","DSC08961.JPG","DSC08966.JPG","DSC08967.JPG","DSC08969.JPG","DSC08973.JPG","DSC08989.JPG","DSC08996.JPG","DSC08997.JPG","DSC09006.JPG","DSC09013.JPG","DSC09028.JPG","DSC09037.JPG","DSC09043.JPG","DSC09048.JPG","DSC09117.JPG","DSC09132.JPG","DSC09147.JPG","DSC09162.JPG","DSC09180.JPG","DSC09189.JPG","DSC09192.JPG","DSC09195.JPG","DSC09207.JPG","DSC09219.JPG","DSC09236.JPG","DSC09239.JPG","DSC09240.JPG","DSC09242.JPG","DSC09246.JPG","DSC09250.JPG","DSC09254.JPG","DSC09258.JPG","DSC09259.JPG","DSC09262.JPG","DSC09264.JPG","DSC09265.JPG","DSC09272.JPG","DSC09274.JPG","DSC09275.JPG","DSC09277.JPG","DSC09278.JPG","DSC09280.JPG","DSC09281.JPG","DSC09282.JPG","DSC09283.JPG","DSC09285.JPG","DSC09288.JPG","DSC09291.JPG","DSC09292.JPG","DSC09293.JPG","DSC09303.JPG","DSC09304.JPG","DSC09307.JPG","DSC09309.JPG","DSC09311.JPG","DSC09313.JPG","DSC09316.JPG","DSC09317.JPG","DSC09320.JPG","DSC09335.JPG","DSC09342.JPG","DSC09349.JPG","DSC09353.JPG","DSC09358.JPG","DSC09361.JPG","DSC09368.JPG","DSC09372.JPG","DSC09374.JPG","DSC09375.JPG","DSC09379.JPG","DSC09380.JPG","DSC09385.JPG","DSC09387.JPG","DSC09392.JPG","DSC09411.JPG","DSC09413.JPG","DSC09414.JPG","DSC09420.JPG","DSC09428.JPG","DSC09429.JPG","DSC09431.JPG","DSC09433.JPG","DSC09438.JPG","DSC09445.JPG","DSC09448.JPG","DSC09452.JPG","DSC09457.JPG","DSC09461.JPG","DSC09466.JPG","DSC09467.JPG","DSC09473.JPG","DSC09477.JPG","DSC09481.JPG","DSC09504.JPG"],"margalef_siurana":["Alex Margalef rockbusters.net 1.jpg","Alex Margalef rockbusters.net 2.jpg","Alex Margalef rockbusters.net 4.jpg","Alex Margalef rockbusters.net.jpg","Alex Siurana rockbusters.net 1.jpg","Alex Siurana rockbusters.net 2.jpg","Alex Siurana rockbusters.net.jpg","Andrea Margalef rockbusters.net 1.jpg","Andrea Margalef rockbusters.net.jpg","Christoph Margalef rockbusters.net 1.jpg","Christoph Margalef rockbusters.net.jpg","Christoph Siurana rockbusters.net.jpg","Daniel Margalef rockbusters.net 1.jpg","Daniel Margalef rockbusters.net.jpg","Daniel Siurana rockbusters.net 1.jpg","Daniel Siurana rockbusters.net.jpg","Robynne Siurana rockbusters.net 1.jpg","Robynne Siurana rockbusters.net.jpg"],"albarracin":["Christoph Albarracin 2019 rockbusters.net 1.jpg","Christoph Albarracin 2019 rockbusters.net 2.jpg","Christoph Albarracin 2019 rockbusters.net 3.jpg","Christoph Albarracin 2019 rockbusters.net 4.jpg","Christoph Albarracin 2019 rockbusters.net 5.jpg","Christoph Albarracin 2019 rockbusters.net.jpg","Christoph Emily Albarracin 2019 rockbusters.net.jpg","Cristoph Lara Albarracin 2019 rockbusters.net.jpg","Emily Albarracin 2019 rockbusters.net.jpg","Kai Albarracin 2019 rockbusters.net 1.jpg","Kai Albarracin 2019 rockbusters.net 2.jpg","Kai Albarracin 2019 rockbusters.net 3.jpg","Kai Albarracin 2019 rockbusters.net 4.jpg","Kai Albarracin 2019 rockbusters.net 5.jpg","Kai Albarracin 2019 rockbusters.net 6.jpg","Kai Albarracin 2019 rockbusters.net 7.jpg","Kai Albarracin 2019 rockbusters.net.jpg","Lara Albarracin 2019 rockbusters.net 1.jpg","Lara Albarracin 2019 rockbusters.net 2.jpg","Lara Albarracin 2019 rockbusters.net 3.jpg","Lara Albarracin 2019 rockbusters.net 4.jpg","Lara Albarracin 2019 rockbusters.net 5.jpg","Lara Albarracin 2019 rockbusters.net 6.jpg","Lara Albarracin 2019 rockbusters.net.jpg","Linda Albarracin 2019 rockbusters.net.jpg","Lucas Albarracin 2019 rockbusters.net 1.jpg","Lucas Albarracin 2019 rockbusters.net 2.jpg","Lucas Albarracin 2019 rockbusters.net 3.jpg","Lucas Albarracin 2019 rockbusters.net 4.jpg","Lucas Albarracin 2019 rockbusters.net 5.jpg","Lucas Albarracin 2019 rockbusters.net.jpg","Pablo Albarracin 2019 rockbusters.net.jpg"],"gorges_du_tarn_2024":["AJ 6a+ Gorges du Tarn .JPG","AJ 6a+ Gorges du Tarn 1.JPG","AJ 6a+ Gorges du Tarn 2.JPG","Dave 6a Gorges du Tarn 1.JPG","Dave 6a Gorges du Tarn 2.JPG","Dave 6a Gorges du Tarn 3.JPG","Dave 6a Gorges du Tarn.JPG","Oli 6a+ Gorges du Tarn 1.JPG","Oli 6a+ Gorges du Tarn 2.JPG","Oli 6a+ Gorges du Tarn.JPG","Svein 6c+ Gorges du Tarn 1.JPG","Svein 6c+ Gorges du Tarn 2.JPG","Svein 6c+ Gorges du Tarn 3.JPG","Svein 6c+ Gorges du Tarn 4.JPG","Svein 6c+ Gorges du Tarn.JPG","Timon 6c+ Gorges du Tarn 1.JPG","Timon 6c+ Gorges du Tarn 2.JPG","Timon 6c+ Gorges du Tarn 3.JPG","Timon 6c+ Gorges du Tarn 4.JPG","Timon 6c+ Gorges du Tarn 5.JPG","Timon 6c+ Gorges du Tarn.JPG"]};
+
+const tabOrder = ["2026_may_klemen","siurana","ceuse_2024","margalef_2024","selection","sella_2024_fall","rodellar_2025","margalef_siurana","albarracin","gorges_du_tarn_2024"];
+const tabLabels = {"2026_may_klemen":"May 2026 Klemen","siurana":"Siurana","ceuse_2024":"Ceuse 2024","margalef_2024":"Margalef 2024","selection":"Frankenjura / Zillertal","sella_2024_fall":"Sella 2024","rodellar_2025":"Rodellar 2025","margalef_siurana":"Margalef + Siurana","albarracin":"Albarracin 2019","gorges_du_tarn_2024":"Gorges du Tarn"};
+
+const selected = new Set();
+let currentFolder = tabOrder[0];
+
+// Build tabs
+const tabsEl = document.getElementById('tabs');
+tabOrder.forEach(folder => {
+  const btn = document.createElement('button');
+  btn.className = 'tab' + (folder === currentFolder ? ' active' : '');
+  btn.textContent = `${tabLabels[folder]} (${index[folder]?.length || 0})`;
+  btn.onclick = () => switchFolder(folder);
+  btn.dataset.folder = folder;
+  tabsEl.appendChild(btn);
+});
+
+function switchFolder(folder) {
+  currentFolder = folder;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.folder === folder));
+  renderGrid(folder);
+  document.getElementById('output').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function renderGrid(folder) {
+  const files = index[folder] || [];
+  document.getElementById('folder-label').textContent = `${tabLabels[folder]} — ${files.length} photos`;
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  files.forEach(f => {
+    const path = `photos/jany/${folder}/${f}`;
+    const card = document.createElement('div');
+    card.className = 'card' + (selected.has(path) ? ' selected' : '');
+    card.innerHTML = `
+      <img src="${path}" loading="lazy" alt="${f}">
+      <div class="label">
+        <span class="name">${f.replace(/\.(JPG|jpg)$/i,'')}</span>
+        <span class="check">✓</span>
+      </div>`;
+    card.addEventListener('click', () => {
+      if (selected.has(path)) { selected.delete(path); card.classList.remove('selected'); }
+      else { selected.add(path); card.classList.add('selected'); }
+      document.getElementById('count').textContent = `${selected.size} selected`;
+    });
+    grid.appendChild(card);
+  });
+}
+
+function clearAll() {
+  selected.clear();
+  document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+  document.getElementById('count').textContent = '0 selected';
+  document.getElementById('output').style.display = 'none';
+}
+
+function showSelected() {
+  if (!selected.size) return;
+  const paths = [...selected].sort().map(p => `"${p}"`).join('\n');
+  const out = document.getElementById('output');
+  out.textContent = paths;
+  out.style.display = 'block';
+  out.scrollIntoView({ behavior: 'smooth' });
+}
+
+renderGrid(currentFolder);
+</script>
+</body>
+</html>

@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rockbusters · Draft Review</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: #0d0d0d;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #0d0d0d;
+      border-bottom: 1px solid #222;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h1 {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #888;
+    }
+
+    .header h1 span { color: #f0f0f0; }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .stats strong { color: #f0f0f0; }
+
+    /* ── Main container ── */
+    .main-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Todo sidebar ── */
+    .todos-panel {
+      flex: 0 0 320px;
+      background: #111;
+      border-right: 1px solid #222;
+      overflow-y: auto;
+      max-height: calc(100vh - 73px);
+      position: sticky;
+      top: 73px;
+    }
+
+    .todos-header {
+      padding: 20px;
+      border-bottom: 1px solid #222;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ff6b00;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .todos-toggle {
+      background: none;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+      color: #555;
+      font-size: 12px;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .todos-toggle:hover { border-color: #444; color: #888; }
+
+    .todos-content {
+      padding: 0;
+    }
+
+    .todos-section {
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .todos-section-title {
+      padding: 12px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #555;
+      background: #0d0d0d;
+    }
+
+    .todo-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 12px;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .todo-item:hover {
+      background: #1a1a1a;
+      border-left-color: #ff6b00;
+    }
+
+    .todo-item.high-priority { border-left-color: #ff6b00; }
+    .todo-item.medium-priority { border-left-color: #6699ff; }
+    .todo-item.low-priority { border-left-color: #555; }
+
+    .todo-emoji {
+      margin-right: 6px;
+      font-size: 14px;
+    }
+
+    .todo-title {
+      color: #ccc;
+      white-space: normal;
+    }
+
+    .todo-meta {
+      font-size: 10px;
+      color: #555;
+      margin-top: 4px;
+      margin-left: 20px;
+    }
+
+    .todo-item.linked .todo-title { color: #6699ff; font-weight: 600; }
+
+    /* ── Layout ── */
+    .board-container {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 24px;
+      padding: 32px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #161616;
+      border: 1px solid #242424;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s;
+    }
+
+    .card.approved { border-color: #2a5c2a; }
+    .card.rejected { border-color: #5c2a2a; opacity: 0.6; }
+    .card.needs_revision { border-color: #5c4a1a; }
+
+    /* ── Card header ── */
+    .card-header {
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f0f0f0;
+      line-height: 1.3;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      color: #555;
+      margin-top: 3px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge.carousel { background: #1a2a4a; color: #6699ff; }
+    .badge.quote_card { background: #2a1a4a; color: #aa88ff; }
+    .badge.highlight_cover { background: #1a3a2a; color: #66cc99; }
+    .badge.story_frame { background: #3a2a1a; color: #ffaa66; }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .status-badge.approved { color: #5cc45c; }
+    .status-badge.rejected { color: #cc5c5c; }
+    .status-badge.needs_revision { color: #ccaa44; }
+    .status-badge.pending { color: #555; }
+
+    /* ── Photo ── */
+    .photo-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/5;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .photo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 20%;
+      display: block;
+    }
+
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      font-size: 13px;
+    }
+
+    /* Slide strip for carousels */
+    .slide-strip {
+      display: flex;
+      gap: 4px;
+      padding: 8px 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: #111;
+    }
+
+    .slide-strip::-webkit-scrollbar { display: none; }
+
+    .slide-thumb {
+      flex-shrink: 0;
+      width: 56px;
+      height: 70px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      background: #1a1a1a;
+      position: relative;
+    }
+
+    .slide-thumb.active { border-color: #ff6b00; }
+
+    .slide-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 20%;
+    }
+
+    .slide-num {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    /* ── Slide overlay (carousel) ── */
+    .slide-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+    }
+
+    .slide-eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+    }
+
+    .slide-headline {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      white-space: pre-line;
+    }
+
+    .slide-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #ff6b00;
+      margin-bottom: 4px;
+    }
+
+    .slide-body {
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.85);
+      margin-top: 6px;
+      white-space: pre-line;
+    }
+
+    /* Quote overlay */
+    .quote-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 28px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+    }
+
+    .quote-text {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      white-space: pre-line;
+      margin-bottom: 10px;
+    }
+
+    .quote-attribution {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.08em;
+    }
+
+    /* Highlight overlay */
+    .highlight-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.45);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .highlight-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .highlight-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Caption ── */
+    .caption-area {
+      padding: 16px 20px;
+      border-top: 1px solid #1f1f1f;
+      flex: 1;
+    }
+
+    .caption-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .caption-text {
+      font-size: 12px;
+      line-height: 1.65;
+      color: #aaa;
+      white-space: pre-wrap;
+      max-height: 120px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .caption-text.expanded { max-height: none; }
+
+    .caption-text::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: linear-gradient(to bottom, transparent, #161616);
+      pointer-events: none;
+    }
+
+    .caption-text.expanded::after { display: none; }
+
+    .expand-btn {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-top: 4px;
+    }
+
+    .expand-btn:hover { color: #999; }
+
+    /* ── Comments ── */
+    .comments-area {
+      padding: 0 20px 12px;
+    }
+
+    .comment-item {
+      background: #1a1a1a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: #999;
+      border-left: 2px solid #333;
+    }
+
+    .comment-item .comment-time {
+      font-size: 10px;
+      color: #444;
+      float: right;
+    }
+
+    /* ── Actions ── */
+    .actions {
+      padding: 16px 20px;
+      border-top: 1px solid #1f1f1f;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-approve {
+      background: #1d3d1d;
+      border-color: #2d5c2d;
+      color: #6fe06f;
+    }
+
+    .btn-approve:hover:not(:disabled) {
+      background: #234d23;
+      border-color: #4a8c4a;
+    }
+
+    .btn-approve.active {
+      background: #2a5c2a;
+      border-color: #5cc45c;
+      color: #5cc45c;
+    }
+
+    .btn-reject {
+      background: #3d1d1d;
+      border-color: #5c2d2d;
+      color: #e07070;
+    }
+
+    .btn-reject:hover:not(:disabled) {
+      background: #4d2323;
+      border-color: #8c4a4a;
+    }
+
+    .btn-reject.active {
+      background: #5c2a2a;
+      border-color: #cc5c5c;
+      color: #cc5c5c;
+    }
+
+    .comment-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .comment-input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #f0f0f0;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .comment-input:focus { border-color: #444; }
+    .comment-input::placeholder { color: #444; }
+
+    .btn-comment {
+      background: #1a1a2a;
+      border-color: #2a2a4a;
+      color: #8888cc;
+      white-space: nowrap;
+      padding: 8px 16px;
+      flex: 0;
+    }
+
+    .btn-comment:hover:not(:disabled) {
+      background: #222240;
+      border-color: #4444aa;
+    }
+
+    /* ── Regen hint ── */
+    .regen-hint {
+      font-size: 11px;
+      color: #8888cc;
+      padding: 6px 10px;
+      background: #1a1a2e;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+    .regen-hint code {
+      font-family: monospace;
+      background: #2a2a44;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* ── Version badge ── */
+    .version-badge {
+      font-size: 10px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 40px;
+      color: #444;
+    }
+
+    .empty h2 { font-size: 20px; margin-bottom: 12px; color: #555; }
+    .empty code {
+      font-size: 13px;
+      background: #1a1a1a;
+      padding: 4px 10px;
+      border-radius: 5px;
+      color: #888;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #232323;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; }
+
+    /* ── Refresh button ── */
+    .refresh-btn {
+      background: none;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      color: #555;
+      font-size: 16px;
+      line-height: 1;
+      padding: 5px 9px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .refresh-btn:hover { border-color: #444; color: #aaa; }
+    .refresh-btn.spinning { animation: spin 0.7s linear infinite; color: #ff6b00; border-color: #ff6b00; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Photo upload ── */
+    .upload-area {
+      border-top: 1px solid #1f1f1f;
+      padding: 12px 20px 16px;
+    }
+
+    .upload-toggle {
+      background: none;
+      border: 1px dashed #2a2a2a;
+      border-radius: 7px;
+      color: #555;
+      font-size: 12px;
+      padding: 8px 14px;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .upload-toggle:hover { border-color: #444; color: #888; }
+
+    .upload-panel {
+      display: none;
+      margin-top: 10px;
+      gap: 10px;
+      flex-direction: column;
+    }
+    .upload-panel.open { display: flex; }
+
+    .upload-drop {
+      border: 1.5px dashed #333;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .upload-drop:hover, .upload-drop.dragover { border-color: #ff6b00; background: #1a1200; }
+    .upload-drop input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    }
+    .upload-drop-label { font-size: 12px; color: #555; pointer-events: none; }
+    .upload-drop-label strong { color: #888; }
+
+    .upload-preview {
+      display: none;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .upload-preview.visible { display: flex; }
+    .upload-preview img {
+      width: 72px; height: 90px;
+      object-fit: cover; object-position: 50% 20%;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+    .upload-preview-info { flex: 1; }
+    .upload-preview-name { font-size: 11px; color: #666; margin-bottom: 6px; }
+    .upload-clear {
+      background: none; border: none; color: #444;
+      font-size: 11px; cursor: pointer; padding: 0;
+    }
+    .upload-clear:hover { color: #999; }
+
+    .upload-slide-note {
+      font-size: 11px; color: #555;
+      background: #1a1a1a; border-radius: 5px; padding: 5px 10px;
+    }
+    .upload-slide-note strong { color: #ff6b00; }
+
+    .btn-upload {
+      background: #1a1a2a; border-color: #2a2a4a; color: #8888cc;
+      font-size: 12px; padding: 8px 14px;
+    }
+    .btn-upload:hover:not(:disabled) { background: #222240; border-color: #4444aa; }
+    .btn-upload.uploading { opacity: 0.6; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <h1>ROCKBUSTERS · <span>Draft Review</span></h1>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="stats" id="stats">Loading...</div>
+    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()" title="Check for updates">↻</button>
+  </div>
+</header>
+
+<div class="main-container">
+  <div class="todos-panel" id="todosPanel">
+    <div class="todos-header">
+      📋 TODOS
+      <button class="todos-toggle" onclick="toggleTodoPanel()" title="Collapse todos">−</button>
+    </div>
+    <div class="todos-content" id="todosContent">
+      <div style="padding:20px;color:#555;font-size:12px;">Loading todos...</div>
+    </div>
+  </div>
+
+  <div class="board-container">
+    <div class="board" id="board">
+      <div class="empty">
+        <h2>Loading drafts...</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = ''; // relative — served from Vercel
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+let drafts = [];
+let todos = { todos: [], postMap: {} };
+let activeSlides = {}; // draftName → slideIndex
+let todoPanelVisible = true; // track sidebar state
+// Per-card JSON fingerprints so we can diff without touching the DOM
+const cardCache = {}; // name → JSON string of draft._meta + key fields
+
+function cardFingerprint(draft) {
+  // Only track fields that affect the rendered card (ignore photo CDN URLs which rotate)
+  const m = draft._meta || {};
+  return JSON.stringify({
+    status: m.status,
+    version: m.version,
+    comments: m.comments,
+    uploads: (m.uploads || []).map(u => ({ at: u.at, slideIndex: u.slideIndex, comment: u.comment }))
+  });
+}
+
+// ── Todos ─────────────────────────────────────────────────────────────────────
+
+async function loadTodos() {
+  try {
+    const res = await fetch(`${API}/api/todos`);
+    const data = await res.json();
+    todos = data;
+    renderTodos();
+  } catch (err) {
+    console.error('Failed to load todos:', err);
+    document.getElementById('todosContent').innerHTML = `
+      <div style="padding:20px;color:#666;font-size:12px;">Could not load todos</div>`;
+  }
+}
+
+function renderTodos() {
+  const container = document.getElementById('todosContent');
+  if (!todos.todos || !todos.todos.length) {
+    container.innerHTML = '<div style="padding:20px;color:#555;font-size:12px;">No todos</div>';
+    return;
+  }
+
+  // Group todos by type and priority
+  const byType = {};
+  const typeOrder = ['blocker', 'regen', 'review', 'jany-input', 'ready', 'highlight-blocked', 'camp'];
+
+  for (const todo of todos.todos) {
+    const type = todo.type || 'other';
+    if (!byType[type]) byType[type] = [];
+    byType[type].push(todo);
+  }
+
+  // Sort within each group by priority
+  const priorityScore = { high: 0, medium: 1, low: 2 };
+  for (const type in byType) {
+    byType[type].sort((a, b) => (priorityScore[a.priority] || 2) - (priorityScore[b.priority] || 2));
+  }
+
+  let html = '';
+  for (const type of typeOrder) {
+    if (!byType[type]?.length) continue;
+
+    const typeLabel = {
+      blocker: '⚠️ Blockers',
+      regen: '💬 Regenerate',
+      review: '🔍 Review',
+      'jany-input': '📋 Jany Input',
+      ready: '🚀 Ready to Post',
+      'highlight-blocked': '🔒 Blocked Highlights',
+      camp: '📅 Upcoming'
+    }[type] || type;
+
+    html += `<div class="todos-section">
+      <div class="todos-section-title">${typeLabel}</div>`;
+
+    for (const todo of byType[type]) {
+      const isLinked = todo.postName && todos.postMap[todo.postName];
+      const linkedClass = isLinked ? 'linked' : '';
+      const priorityClass = `${todo.priority || 'low'}-priority`;
+      const onclick = todo.postName ? `scrollToPost('${todo.postName}')` : '';
+      const clickable = todo.postName ? 'style="cursor:pointer"' : '';
+
+      let meta = '';
+      if (todo.commandHint) {
+        meta += `<div class="todo-meta"><code>${todo.commandHint}</code></div>`;
+      } else if (todo.daysUntil !== undefined) {
+        meta += `<div class="todo-meta">${todo.date} (${todo.daysUntil}d away)</div>`;
+      } else if (todo.postNames?.length) {
+        meta += `<div class="todo-meta">${todo.postNames.length} posts</div>`;
+      }
+
+      html += `<div class="todo-item ${priorityClass} ${linkedClass}" onclick="${onclick}" ${clickable}>
+        <span class="todo-emoji">${todo.emoji}</span>
+        <span class="todo-title">${esc(todo.title)}</span>
+        ${meta}
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+function scrollToPost(postName) {
+  const card = document.getElementById(`card-${postName}`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.boxShadow = '0 0 0 2px #ff6b00';
+    setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+  }
+}
+
+function toggleTodoPanel() {
+  const panel = document.getElementById('todosPanel');
+  todoPanelVisible = !todoPanelVisible;
+  panel.style.display = todoPanelVisible ? 'flex' : 'none';
+  if (todoPanelVisible) {
+    // Re-measure the layout
+    document.querySelector('.main-container').style.flexDirection = 'row';
+  }
+}
+
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+
+async function loadDrafts() {
+  try {
+    const [draftsRes, todosRes] = await Promise.all([
+      fetch(`${API}/api/drafts`),
+      fetch(`${API}/api/todos`)
+    ]);
+    const fresh = await draftsRes.json();
+    const todoData = await todosRes.json();
+    drafts = fresh;
+    todos = todoData;
+    renderAll();
+    renderTodos();
+  } catch (err) {
+    document.getElementById('board').innerHTML = `
+      <div class="empty">
+        <h2>Could not load drafts</h2>
+        <p style="margin-top:8px;font-size:14px;color:#666;">Check your connection and try again.</p>
+      </div>`;
+    renderTodos(); // try to show todos even if drafts fail
+  }
+}
+
+async function manualRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/api/drafts`);
+    const fresh = await res.json();
+
+    // Patch only cards whose _meta changed — everything else untouched
+    let changed = 0;
+    for (const fd of fresh) {
+      const name = fd.name;
+      const fp = cardFingerprint(fd);
+      const existing = drafts.find(d => d.name === name);
+      if (!existing) {
+        drafts.push(fd);
+        cardCache[name] = fp;
+        const board = document.getElementById('board');
+        const div = document.createElement('div');
+        div.innerHTML = renderCard(fd);
+        board.appendChild(div.firstElementChild);
+        changed++;
+      } else if (cardCache[name] !== fp) {
+        Object.assign(existing, fd);
+        cardCache[name] = fp;
+        patchCard(name);
+        changed++;
+      }
+    }
+    if (changed > 0) updateStats();
+    toast(changed > 0 ? `↻ ${changed} card${changed > 1 ? 's' : ''} updated` : '↻ Up to date', '#888');
+  } catch (err) {
+    toast('Could not refresh', '#cc5c5c');
+  } finally {
+    btn.classList.remove('spinning');
+    btn.disabled = false;
+  }
+}
+
+async function postAction(draftName, action, body = {}) {
+  const res = await fetch(`${API}/api/draft/${draftName}/${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+
+function photoSrc(photoPath) {
+  if (!photoPath) return null;
+  return photoPath; // Blob public URL stored in draft JSON
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+function renderSlideContent(slide, index) {
+  const src = photoSrc(slide.photo);
+  const imgTag = src
+    ? `<img src="${src}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=photo-placeholder>No photo</div>'">`
+    : `<div class="photo-placeholder">No photo</div>`;
+
+  let overlay = '';
+
+  if (slide.type === 'cover') {
+    overlay = `<div class="slide-overlay">
+      ${slide.eyebrow ? `<div class="slide-eyebrow">${esc(slide.eyebrow)}</div>` : ''}
+      ${slide.headline ? `<div class="slide-headline">${esc(slide.headline)}</div>` : ''}
+      ${slide.subline ? `<div class="slide-body" style="margin-top:6px;font-size:12px;">${esc(slide.subline)}</div>` : ''}
+    </div>`;
+  } else {
+    overlay = `<div class="slide-overlay">
+      ${slide.label ? `<div class="slide-label">${esc(slide.label)}</div>` : ''}
+      ${slide.headline ? `<div class="slide-headline" style="font-size:18px;">${esc(slide.headline)}</div>` : ''}
+      ${slide.body ? `<div class="slide-body">${esc(slide.body)}</div>` : ''}
+    </div>`;
+  }
+
+  return { imgTag, overlay };
+}
+
+function renderCard(draft) {
+  const name = draft.name;
+  const type = draft.type;
+  const meta = draft._meta || {};
+  const status = meta.status || 'pending';
+  const comments = meta.comments || [];
+  const activeSlide = activeSlides[name] || 0;
+
+  // ── Photo area ──
+  let photoArea = '';
+
+  if (type === 'carousel' && draft.slides?.length) {
+    const slide = draft.slides[activeSlide] || draft.slides[0];
+    const { imgTag, overlay } = renderSlideContent(slide, activeSlide);
+
+    const thumbs = draft.slides.map((s, i) => {
+      const src = photoSrc(s.photo);
+      return `<div class="slide-thumb ${i === activeSlide ? 'active' : ''}" onclick="setSlide('${name}', ${i})">
+        ${src ? `<img src="${src}" loading="lazy">` : ''}
+        <div class="slide-num">${i + 1}</div>
+      </div>`;
+    }).join('');
+
+    photoArea = `
+      <div class="photo-container">${imgTag}${overlay}</div>
+      <div class="slide-strip">${thumbs}</div>`;
+
+  } else if (type === 'quote_card') {
+    const src = photoSrc(draft.photo);
+    const imgTag = src
+      ? `<img src="${src}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=photo-placeholder>No photo</div>'">`
+      : `<div class="photo-placeholder">No photo</div>`;
+    photoArea = `<div class="photo-container">${imgTag}
+      <div class="quote-overlay">
+        ${draft.quote ? `<div class="quote-text">${esc(draft.quote)}</div>` : ''}
+        ${draft.attribution ? `<div class="quote-attribution">— ${esc(draft.attribution)}${draft.context ? ' · ' + esc(draft.context) : ''}</div>` : ''}
+      </div>
+    </div>`;
+
+  } else if (type === 'highlight_cover') {
+    const src = photoSrc(draft.photo);
+    const imgTag = src
+      ? `<img src="${src}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=photo-placeholder>No photo</div>'">`
+      : `<div class="photo-placeholder">No photo</div>`;
+    photoArea = `<div class="photo-container">${imgTag}
+      <div class="highlight-overlay">
+        ${draft.title ? `<div class="highlight-title">${esc(draft.title)}</div>` : ''}
+        ${draft.subtitle ? `<div class="highlight-subtitle">${esc(draft.subtitle)}</div>` : ''}
+      </div>
+    </div>`;
+
+  } else if (type === 'story_frame') {
+    const src = photoSrc(draft.photo);
+    const imgTag = src
+      ? `<img src="${src}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=photo-placeholder>No photo</div>'">`
+      : `<div class="photo-placeholder">No photo</div>`;
+    const slide = { type: 'cover', eyebrow: draft.eyebrow, headline: draft.headline };
+    const { overlay } = renderSlideContent(slide, 0);
+    photoArea = `<div class="photo-container">${imgTag}${overlay}</div>`;
+  }
+
+  // ── Caption ──
+  const captionHtml = draft.caption
+    ? `<div class="caption-area">
+        <div class="caption-label">Caption</div>
+        <div class="caption-text" id="cap-${name}">${esc(draft.caption)}</div>
+        <button class="expand-btn" onclick="toggleCaption('${name}')">Show more</button>
+      </div>`
+    : '';
+
+  // ── Comments ──
+  const commentsHtml = comments.length
+    ? `<div class="comments-area">
+        ${comments.map(c => `
+          <div class="comment-item">
+            <span class="comment-time">${timeAgo(c.at)}</span>
+            ${esc(c.text)}
+          </div>`).join('')}
+      </div>`
+    : '';
+
+  // ── Related todos ──
+  const relatedTodoIds = todos.postMap?.[name] || [];
+  const relatedTodos = relatedTodoIds
+    .map(id => todos.todos?.find(t => t.id === id))
+    .filter(Boolean);
+
+  const relatedTodosHtml = relatedTodos.length
+    ? `<div style="padding:12px 20px;background:#1a1a2e;border-top:1px solid #2a2a4a;border-bottom:1px solid #2a2a4a;font-size:11px;">
+        <div style="color:#8888cc;font-weight:600;margin-bottom:8px;">Related todos:</div>
+        ${relatedTodos.map(t => `
+          <div style="color:#aaa;margin-bottom:6px;padding-left:12px;border-left:2px solid #6699ff;">
+            ${t.emoji} ${esc(t.title)}
+            ${t.commandHint ? `<br><code style="font-size:10px;color:#666;">${t.commandHint}</code>` : ''}
+          </div>`).join('')}
+      </div>`
+    : '';
+
+  // ── Actions ──
+  const isApproved = status === 'approved';
+  const isRejected = status === 'rejected';
+  const isNeedsRevision = status === 'needs_revision';
+
+  const slideNote = type === 'carousel'
+    ? `<div class="upload-slide-note">For slide <strong>${activeSlide + 1}</strong> (currently shown)</div>`
+    : '';
+
+  const actionsHtml = `
+    <div class="actions">
+      <div class="action-row">
+        <button class="btn btn-approve ${isApproved ? 'active' : ''}"
+          onclick="approve('${name}')"
+          ${isApproved ? 'disabled' : ''}>
+          ${isApproved ? '✓ Approved' : 'Approve'}
+        </button>
+        <button class="btn btn-reject ${isRejected ? 'active' : ''}"
+          onclick="reject('${name}')"
+          ${isRejected ? 'disabled' : ''}>
+          ${isRejected ? '✕ Rejected' : 'Reject'}
+        </button>
+      </div>
+      <div class="comment-row">
+        <input class="comment-input" id="comment-${name}" placeholder="Request a change... (e.g. make the tone less formal, use a different photo)"
+          onkeydown="if(event.key==='Enter')sendComment('${name}')">
+        <button class="btn btn-comment" id="comment-btn-${name}" onclick="sendComment('${name}')">Send</button>
+      </div>
+      <div class="regen-hint" id="regen-hint-${name}" style="display:${isNeedsRevision ? 'block' : 'none'}">
+        💬 Comment saved — to regenerate: <code>node regen.js ${name}</code>
+      </div>
+    </div>
+    <div class="upload-area">
+      <button class="upload-toggle" onclick="toggleUpload('${name}')">📎 Attach a replacement photo</button>
+      <div class="upload-panel" id="upload-${name}">
+        ${slideNote}
+        <div class="upload-drop" id="drop-${name}"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="handleDrop('${name}',event)">
+          <input type="file" accept="image/*" onchange="handleFile('${name}',this)">
+          <div class="upload-drop-label"><strong>Choose photo</strong> or drag here</div>
+        </div>
+        <div class="upload-preview" id="preview-${name}">
+          <img id="preview-img-${name}" src="" alt="">
+          <div class="upload-preview-info">
+            <div class="upload-preview-name" id="preview-name-${name}"></div>
+            <input class="comment-input" id="upload-comment-${name}" placeholder="Note for Anna (e.g. use this for slide 3)">
+            <div style="display:flex;gap:6px;margin-top:6px;">
+              <button class="btn btn-upload" id="upload-btn-${name}" onclick="uploadPhoto('${name}', ${activeSlide})">Send photo</button>
+              <button class="upload-clear" onclick="clearUpload('${name}')">✕ Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  return `
+    <div class="card ${status}" id="card-${name}">
+      <div class="card-header">
+        <div>
+          <div class="card-name">${esc(name.replace(/_/g, ' '))}</div>
+          <div class="card-meta">v${meta.version || 1} · ${timeAgo(meta.generated_at)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+          <span class="badge ${type}">${type.replace(/_/g, ' ')}</span>
+          <span class="status-badge ${status}">${status.replace(/_/g, ' ')}</span>
+        </div>
+      </div>
+      ${photoArea}
+      ${captionHtml}
+      ${commentsHtml}
+      ${relatedTodosHtml}
+      ${actionsHtml}
+    </div>`;
+}
+
+function updateStats() {
+  const stats = document.getElementById('stats');
+  const pending  = drafts.filter(d => ['pending','pending_review'].includes(d._meta?.status || 'pending')).length;
+  const approved = drafts.filter(d => d._meta?.status === 'approved').length;
+  const rejected = drafts.filter(d => d._meta?.status === 'rejected').length;
+  stats.innerHTML = `
+    <span><strong>${drafts.length}</strong> total</span>
+    <span><strong style="color:#6fe06f">${approved}</strong> approved</span>
+    <span><strong style="color:#ccaa44">${pending}</strong> pending</span>
+    ${rejected ? `<span><strong style="color:#cc5c5c">${rejected}</strong> rejected</span>` : ''}`;
+}
+
+// Full build — only called once on initial load
+function renderAll() {
+  const board = document.getElementById('board');
+
+  if (!drafts.length) {
+    board.innerHTML = `<div class="empty">
+      <h2>No drafts yet</h2>
+      <p style="margin-top:8px;font-size:14px;color:#555;">Run the content manager to generate some:</p>
+      <p style="margin-top:8px;"><code>node content-manager.js</code></p>
+    </div>`;
+    document.getElementById('stats').textContent = '0 drafts';
+    return;
+  }
+
+  board.innerHTML = drafts.map(renderCard).join('');
+  // Seed the cache
+  for (const d of drafts) cardCache[d.name] = cardFingerprint(d);
+  updateStats();
+}
+
+// Full card replacement — only used when a brand-new card appears (manualRefresh)
+function patchCard(name) {
+  const draft = drafts.find(d => d.name === name);
+  const existing = document.getElementById(`card-${name}`);
+  if (!draft || !existing) return;
+  const div = document.createElement('div');
+  div.innerHTML = renderCard(draft);
+  existing.replaceWith(div.firstElementChild);
+}
+
+// Surgical update — only touches text/classes, never the photo area
+// Use this for all user actions (approve/reject/comment/upload)
+function updateCardMeta(name) {
+  const draft = drafts.find(d => d.name === name);
+  const cardEl = document.getElementById(`card-${name}`);
+  if (!draft || !cardEl) return;
+
+  const meta = draft._meta || {};
+  const status = meta.status || 'pending';
+  const comments = meta.comments || [];
+
+  // 1. Card border class
+  cardEl.className = `card ${status}`;
+
+  // 2. Status badge
+  const badge = cardEl.querySelector('.status-badge');
+  if (badge) {
+    badge.className = `status-badge ${status}`;
+    badge.textContent = status.replace(/_/g, ' ');
+  }
+
+  // 3. Comments section — update in place or insert before .actions
+  const newCommentsHtml = comments.length
+    ? `<div class="comments-area">${comments.map(c => `
+        <div class="comment-item">
+          <span class="comment-time">${timeAgo(c.at)}</span>
+          ${esc(c.text)}
+        </div>`).join('')}</div>`
+    : '';
+
+  const existing = cardEl.querySelector('.comments-area');
+  if (existing && newCommentsHtml)  { existing.outerHTML = newCommentsHtml; }
+  else if (existing && !newCommentsHtml) { existing.remove(); }
+  else if (!existing && newCommentsHtml) {
+    cardEl.querySelector('.actions')?.insertAdjacentHTML('beforebegin', newCommentsHtml);
+  }
+
+  // 4. Approve / reject button states
+  const isApproved = status === 'approved';
+  const isRejected = status === 'rejected';
+
+  const approveBtn = cardEl.querySelector('.btn-approve');
+  if (approveBtn) {
+    approveBtn.className = `btn btn-approve${isApproved ? ' active' : ''}`;
+    approveBtn.disabled = isApproved;
+    approveBtn.textContent = isApproved ? '✓ Approved' : 'Approve';
+  }
+  const rejectBtn = cardEl.querySelector('.btn-reject');
+  if (rejectBtn) {
+    rejectBtn.className = `btn btn-reject${isRejected ? ' active' : ''}`;
+    rejectBtn.disabled = isRejected;
+    rejectBtn.textContent = isRejected ? '✕ Rejected' : 'Reject';
+  }
+
+  // 5. Regen hint visibility
+  const regenHint = document.getElementById(`regen-hint-${name}`);
+  if (regenHint) regenHint.style.display = status === 'needs_revision' ? 'block' : 'none';
+
+  // 6. Refresh todos (they may change based on status)
+  renderTodos();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function esc(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function toast(msg, color = '#f0f0f0') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.color = color;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function setSlide(name, idx) {
+  activeSlides[name] = idx;
+  patchCard(name); // only replaces this one card
+}
+
+function toggleCaption(name) {
+  const el = document.getElementById(`cap-${name}`);
+  if (!el) return;
+  const expanded = el.classList.toggle('expanded');
+  el.nextElementSibling.textContent = expanded ? 'Show less' : 'Show more';
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+
+async function approve(name) {
+  await postAction(name, 'approve');
+  const draft = drafts.find(d => d.name === name);
+  if (draft) { draft._meta = draft._meta || {}; draft._meta.status = 'approved'; }
+  cardCache[name] = cardFingerprint(draft);
+  updateCardMeta(name);
+  updateStats();
+  toast('✓ Approved', '#6fe06f');
+}
+
+async function reject(name) {
+  await postAction(name, 'reject');
+  const draft = drafts.find(d => d.name === name);
+  if (draft) { draft._meta = draft._meta || {}; draft._meta.status = 'rejected'; }
+  cardCache[name] = cardFingerprint(draft);
+  updateCardMeta(name);
+  updateStats();
+  toast('Rejected', '#cc5c5c');
+}
+
+async function sendComment(name) {
+  const input = document.getElementById(`comment-${name}`);
+  const btn = document.getElementById(`comment-btn-${name}`);
+  const comment = input?.value?.trim();
+  if (!comment) return;
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    const result = await postAction(name, 'comment', { comment });
+    if (result?.error) throw new Error(result.error);
+
+    input.value = '';
+
+    const draft = drafts.find(d => d.name === name);
+    if (draft) {
+      draft._meta = draft._meta || {};
+      draft._meta.status = 'needs_revision';
+      draft._meta.comments = draft._meta.comments || [];
+      draft._meta.comments.push({ text: comment, at: new Date().toISOString() });
+    }
+    cardCache[name] = cardFingerprint(draft);
+    updateCardMeta(name);
+    updateStats();
+    toast('✓ Comment saved — run node regen.js to regenerate', '#8888cc');
+
+    // Show the regen hint banner on this card
+    const hint = document.getElementById(`regen-hint-${name}`);
+    if (hint) hint.style.display = 'block';
+
+  } catch (err) {
+    toast(`❌ Could not save comment: ${err.message}`, '#cc5c5c');
+    console.error('Comment save failed:', err);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+  }
+}
+
+// ── Photo Upload ──────────────────────────────────────────────────────────────
+
+// Per-card pending file blobs (not stored in drafts array)
+const pendingFiles = {};
+
+function toggleUpload(name) {
+  const panel = document.getElementById(`upload-${name}`);
+  if (!panel) return;
+  panel.classList.toggle('open');
+}
+
+function handleDrop(name, event) {
+  event.preventDefault();
+  document.getElementById(`drop-${name}`)?.classList.remove('dragover');
+  const file = event.dataTransfer?.files?.[0];
+  if (file && file.type.startsWith('image/')) showPreview(name, file);
+}
+
+function handleFile(name, input) {
+  const file = input?.files?.[0];
+  if (file) showPreview(name, file);
+}
+
+function showPreview(name, file) {
+  pendingFiles[name] = file;
+
+  const previewEl = document.getElementById(`preview-${name}`);
+  const imgEl = document.getElementById(`preview-img-${name}`);
+  const nameEl = document.getElementById(`preview-name-${name}`);
+  const dropEl = document.getElementById(`drop-${name}`);
+
+  if (!previewEl || !imgEl) return;
+
+  const url = URL.createObjectURL(file);
+  imgEl.src = url;
+  if (nameEl) nameEl.textContent = file.name;
+  previewEl.classList.add('visible');
+  if (dropEl) dropEl.style.display = 'none';
+}
+
+function clearUpload(name) {
+  delete pendingFiles[name];
+
+  const previewEl = document.getElementById(`preview-${name}`);
+  const imgEl = document.getElementById(`preview-img-${name}`);
+  const dropEl = document.getElementById(`drop-${name}`);
+  const commentEl = document.getElementById(`upload-comment-${name}`);
+
+  if (previewEl) previewEl.classList.remove('visible');
+  if (imgEl) { URL.revokeObjectURL(imgEl.src); imgEl.src = ''; }
+  if (dropEl) dropEl.style.display = '';
+  if (commentEl) commentEl.value = '';
+}
+
+async function compressImage(file, maxDim = 1200) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        if (width >= height) { height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.88);
+    };
+    img.src = url;
+  });
+}
+
+async function uploadPhoto(name, slideIndex) {
+  const file = pendingFiles[name];
+  if (!file) { toast('No photo selected', '#cc5c5c'); return; }
+
+  const btn = document.getElementById(`upload-btn-${name}`);
+  const comment = document.getElementById(`upload-comment-${name}`)?.value?.trim() || '';
+
+  if (btn) { btn.textContent = 'Compressing…'; btn.disabled = true; btn.classList.add('uploading'); }
+
+  try {
+    const compressed = await compressImage(file, 1200);
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(compressed);
+    });
+
+    if (btn) btn.textContent = 'Uploading…';
+
+    const res = await fetch(`${API}/api/draft/${name}/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slideIndex: slideIndex ?? null,
+        photoBase64: base64,
+        contentType: 'image/jpeg',
+        comment
+      })
+    });
+
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+
+    // Update local draft state
+    const draft = drafts.find(d => d.name === name);
+    if (draft) {
+      draft._meta = draft._meta || {};
+      draft._meta.status = 'needs_revision';
+      draft._meta.comments = draft._meta.comments || [];
+      const slideNote = slideIndex != null ? ` (slide ${slideIndex + 1})` : '';
+      draft._meta.comments.push({
+        text: `📎 Photo attached${slideNote}${comment ? ': ' + comment : ''}`,
+        at: new Date().toISOString()
+      });
+    }
+
+    clearUpload(name);
+    cardCache[name] = cardFingerprint(draft);
+    updateCardMeta(name);
+    updateStats();
+    toast('📎 Photo sent — Anna will apply it when regenerating', '#8888cc');
+
+  } catch (err) {
+    toast('Upload failed: ' + err.message, '#cc5c5c');
+    if (btn) { btn.textContent = 'Send photo'; btn.disabled = false; btn.classList.remove('uploading'); }
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+loadDrafts();
+</script>
+</body>
+</html>

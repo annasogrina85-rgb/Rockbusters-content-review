@@ -1,0 +1,20 @@
+{
+  "name": "rockbusters-design-system",
+  "version": "1.0.0",
+  "description": "Automated Instagram post and Highlights generator for Rockbusters",
+  "scripts": {
+    "generate": "node generate.js",
+    "install-browsers": "npx playwright install chromium",
+    "content": "node content-manager.js",
+    "review": "node review-server.js",
+    "push": "node push-drafts.js",
+    "pull": "node push-drafts.js --pull",
+    "deploy": "cd vercel && npx vercel --prod"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.97.1",
+    "@googleapis/drive": "^20.2.0",
+    "dotenv": "^17.4.2",
+    "playwright": "^1.60.0"
+  }
+}
