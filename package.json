@@ -14,6 +14,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.97.1",
     "@googleapis/drive": "^20.2.0",
+    "@vercel/kv": "^3.0.0",
     "dotenv": "^17.4.2",
     "playwright": "^1.60.0"
   }
