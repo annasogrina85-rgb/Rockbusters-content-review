@@ -726,14 +726,20 @@
 <body>
 
 <header class="header">
-  <h1>ROCKBUSTERS · <span>Draft Review</span></h1>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <h1>ROCKBUSTERS · <span>Content OS</span></h1>
+    <nav style="display:flex;gap:2px;">
+      <button id="tabDrafts" onclick="switchTab('drafts')" style="background:#ff6b00;color:#fff;border:none;padding:6px 14px;border-radius:6px 6px 0 0;font-size:12px;font-weight:600;letter-spacing:0.05em;cursor:pointer;">DRAFTS</button>
+      <button id="tabPlan" onclick="switchTab('plan')" style="background:#1a1a1a;color:#666;border:1px solid #2a2a2a;border-bottom:none;padding:6px 14px;border-radius:6px 6px 0 0;font-size:12px;font-weight:600;letter-spacing:0.05em;cursor:pointer;">PLAN</button>
+    </nav>
+  </div>
   <div style="display:flex;align-items:center;gap:16px;">
     <div class="stats" id="stats">Loading...</div>
     <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()" title="Check for updates">↻</button>
   </div>
 </header>
 
-<div class="main-container">
+<div class="main-container" id="viewDrafts">
   <div class="todos-panel" id="todosPanel">
     <div class="todos-header">
       📋 TODOS
@@ -751,6 +757,10 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="main-container" id="viewPlan" style="display:none;flex-direction:column;padding:32px;max-width:900px;margin:0 auto;width:100%;">
+  <div id="planContent" style="color:#888;font-size:14px;">Loading content plan...</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1495,6 +1505,167 @@ async function uploadPhoto(name, slideIndex) {
     toast('Upload failed: ' + err.message, '#cc5c5c');
     if (btn) { btn.textContent = 'Send photo'; btn.disabled = false; btn.classList.remove('uploading'); }
   }
+}
+
+// ── Tab switching ────────────────────────────────────────────────────────────
+
+let currentTab = 'drafts';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('viewDrafts').style.display = tab === 'drafts' ? 'flex' : 'none';
+  document.getElementById('viewPlan').style.display   = tab === 'plan'   ? 'flex' : 'none';
+
+  document.getElementById('tabDrafts').style.background = tab === 'drafts' ? '#ff6b00' : '#1a1a1a';
+  document.getElementById('tabDrafts').style.color      = tab === 'drafts' ? '#fff'    : '#666';
+  document.getElementById('tabPlan').style.background   = tab === 'plan'   ? '#ff6b00' : '#1a1a1a';
+  document.getElementById('tabPlan').style.color        = tab === 'plan'   ? '#fff'    : '#666';
+
+  if (tab === 'plan') loadPlan();
+}
+
+// ── Content Plan ─────────────────────────────────────────────────────────────
+
+let planData = null;
+
+async function loadPlan() {
+  try {
+    const res = await fetch('/api/plan');
+    planData = await res.json();
+    renderPlan();
+  } catch (err) {
+    document.getElementById('planContent').innerHTML = `<p style="color:#cc5c5c">Failed to load plan: ${err.message}</p>`;
+  }
+}
+
+function statusBadge(status) {
+  const map = {
+    approved: ['✅ Approved', '#2a5c2a', '#4caf50'],
+    rejected: ['❌ Rejected', '#5c2a2a', '#cc5c5c'],
+    needs_revision: ['💬 Needs revision', '#3a3a1a', '#ccaa44'],
+    pending_review: ['🔍 Pending review', '#1a2a3a', '#6699ff'],
+    pending: ['⏳ Pending', '#222', '#555'],
+    blocked: ['🔒 Blocked', '#2a1a1a', '#ff6b00'],
+    blocked_needs_context: ['⚠️ Blocked', '#2a1a1a', '#ff6b00'],
+    needs_rethink: ['🔁 Needs rethink', '#2a1a2a', '#aa44cc'],
+  };
+  const [label, bg, color] = map[status] || ['⏳ ' + status, '#222', '#555'];
+  return `<span style="background:${bg};color:${color};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${label}</span>`;
+}
+
+function planSection(title, emoji, items) {
+  if (!items.length) return '';
+  return `
+    <div style="margin-bottom:32px">
+      <h3 style="color:#ff6b00;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:16px">${emoji} ${title}</h3>
+      ${items.join('')}
+    </div>`;
+}
+
+function planItemRow(name, label, status, blocker, type, publishAfter, commentCount) {
+  const safeId = name.replace(/[^a-z0-9]/gi, '_');
+  return `
+    <div id="plan-item-${safeId}" style="background:#161616;border:1px solid #242424;border-radius:8px;padding:16px;margin-bottom:8px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:14px;font-weight:600;color:#f0f0f0;margin-bottom:6px">${label}</div>
+          ${type ? `<div style="font-size:11px;color:#555;margin-bottom:4px">${type}</div>` : ''}
+          ${blocker ? `<div style="font-size:12px;color:#ff6b00;margin-bottom:4px">⚠️ ${blocker}</div>` : ''}
+          ${publishAfter ? `<div style="font-size:11px;color:#555">Publish after: ${publishAfter}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${statusBadge(status)}
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div style="display:flex;gap:8px">
+          <input id="plan-comment-${safeId}" type="text" placeholder="Add comment for agent…"
+            style="flex:1;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;padding:8px 12px;color:#f0f0f0;font-size:12px;outline:none"
+            onkeydown="if(event.key==='Enter') submitPlanComment('${name}', '${safeId}')">
+          <button onclick="submitPlanComment('${name}', '${safeId}')"
+            style="background:#ff6b00;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">
+            Send
+          </button>
+        </div>
+        ${commentCount > 0 ? `<div style="font-size:11px;color:#555;margin-top:6px">${commentCount} comment(s) queued for agent</div>` : ''}
+      </div>
+    </div>`;
+}
+
+async function submitPlanComment(itemName, safeId) {
+  const input = document.getElementById(`plan-comment-${safeId}`);
+  const comment = input.value.trim();
+  if (!comment) return;
+
+  try {
+    const res = await fetch(`/api/plan?item=${encodeURIComponent(itemName)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment, from: 'reviewer' })
+    });
+    if (!res.ok) throw new Error(await res.text());
+
+    input.value = '';
+    toast('💬 Comment saved — agent will pick it up in the morning', '#6699ff');
+
+    // Update the comment count in the row
+    const countEl = document.querySelector(`#plan-item-${safeId} [data-comment-count]`);
+    if (countEl) {
+      const n = parseInt(countEl.dataset.commentCount || '0') + 1;
+      countEl.textContent = `${n} comment(s) queued for agent`;
+      countEl.dataset.commentCount = n;
+    }
+  } catch (err) {
+    toast('Failed: ' + err.message, '#cc5c5c');
+  }
+}
+
+function renderPlan() {
+  if (!planData) return;
+  const el = document.getElementById('planContent');
+
+  const campsRows = (planData.upcoming_camps || []).map(c => {
+    const days = Math.ceil((new Date(c.date) - new Date()) / 86400000);
+    return `<div style="background:#161616;border:1px solid #242424;border-radius:8px;padding:16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#f0f0f0">${c.name}</div>
+        <div style="font-size:12px;color:#888;margin-top:4px">with ${c.coach} · ${c.location} · ${c.date}</div>
+        ${c._note ? `<div style="font-size:11px;color:#555;margin-top:4px">${c._note}</div>` : ''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:18px;font-weight:700;color:${days < 14 ? '#ff6b00' : '#888'}">${days}</div>
+        <div style="font-size:10px;color:#555">days</div>
+      </div>
+    </div>`;
+  });
+
+  const postsRows = (planData.posts || []).map(p =>
+    planItemRow(p.name, p.name.replace(/_/g, ' '), p.status, p.blocker, p.type, p.publish_after, 0)
+  );
+
+  const highlightRows = (planData.highlights || []).map(h =>
+    planItemRow(h.draft || h.name, h.name, h.status, h.blocker, 'highlight_cover', null, 0)
+  );
+
+  const infoRows = (planData.info_needed || []).map(i => `
+    <div style="background:#161616;border:1px solid #242424;border-radius:8px;padding:16px;margin-bottom:8px;display:flex;gap:16px;align-items:flex-start">
+      <div style="background:#1a2a1a;color:#88cc88;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap">FROM ${i.from.toUpperCase()}</div>
+      <div>
+        <div style="font-size:13px;color:#f0f0f0">${i.what}</div>
+        <div style="font-size:11px;color:#555;margin-top:4px">for: ${i.for}</div>
+      </div>
+    </div>`);
+
+  el.innerHTML = `
+    <div style="margin-bottom:24px">
+      <h2 style="font-size:16px;font-weight:700;color:#f0f0f0">Content Plan</h2>
+      <p style="font-size:12px;color:#555;margin-top:4px">Add comments below — the agent picks them up in the morning and adjusts content accordingly.</p>
+    </div>
+    ${planSection('Upcoming camps', '📅', campsRows)}
+    ${planSection('Posts', '📝', postsRows)}
+    ${planSection('Highlights', '⭐', highlightRows)}
+    ${planSection('Info needed', '📋', infoRows)}
+  `;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
