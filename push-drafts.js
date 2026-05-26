@@ -384,12 +384,55 @@ async function pullDecisions() {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
+async function kvDel(key) {
+  const res = await fetch(`${kvUrl()}/del/${encodeURIComponent(key)}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${kvToken()}` }
+  });
+  if (!res.ok) throw new Error(`KV del failed (${res.status}): ${await res.text()}`);
+}
+
+async function kvSRem(key, member) {
+  const res = await fetch(`${kvUrl()}/srem/${encodeURIComponent(key)}/${encodeURIComponent(member)}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${kvToken()}` }
+  });
+  if (!res.ok) throw new Error(`KV srem failed (${res.status}): ${await res.text()}`);
+}
+
+async function deleteDraft(name) {
+  process.stdout.write(`\n  🗑  ${name} — deleting from KV... `);
+  await kvDel(`draft:${name}`);
+  await kvSRem('drafts:list', name);
+  console.log('done');
+
+  // Also remove local draft file if it exists
+  const localFile = path.join(DRAFTS_DIR, `${name}.json`);
+  if (fs.existsSync(localFile)) {
+    fs.unlinkSync(localFile);
+    console.log(`     ✓ local draft file removed`);
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.includes('--pull')) {
     checkEnv();
     await pullDecisions();
+    return;
+  }
+
+  if (args.includes('--delete')) {
+    checkEnv();
+    const deleteIdx = args.indexOf('--delete');
+    const name = args[deleteIdx + 1];
+    if (!name) {
+      console.error('\n❌ Usage: node push-drafts.js --delete <draft-name>\n');
+      process.exit(1);
+    }
+    await deleteDraft(name);
+    console.log(`\n✅ Draft "${name}" deleted from KV and local drafts.\n`);
     return;
   }
 

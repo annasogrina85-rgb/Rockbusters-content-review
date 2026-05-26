@@ -352,16 +352,42 @@ Photo: we want someone on the wall — focused, in the middle of a hard move, or
     name: 'anna_story_post',
     type: 'quote_card',
     folder: 'photos/jany/2026_may_klemen',
-    brief: `A personal story post about Anna's experience at the Rockbusters Mind & Technique camp, Rodellar, May 2026.
+    brief: `A personal story post about Anna's experience at Rockbusters, Rodellar, May 2026.
+Written in FIRST PERSON as Anna. Use ONLY the content from her interview answers below — do not invent, embellish, or add facts she didn't mention.
 
-USE ANNA'S EXACT WORDS from the tone guide example (the Billy a Rapido story). This is her real story — don't add fabricated details or change the narrative. Keep it exactly as she wrote it.
+ANNA'S INTERVIEW (verbatim answers — use these, nothing else):
+---
+How she ended up at Rodellar:
+"I decided to buy a trip with Rockbusters at the end of 2025, and chose a trip to Leonidio in January — I wanted to explore a new area I've never been to, and meet new people in climbing. But it turned out that nobody bought that trip except for me. I went there anyway — and had two perfect weeks with the individual coach — Kostas. And after my trip Jany told me that he want me to have a Rockbusters experience anyway, and offered me join a trip to Rodellar for free! I was so excited — it was a totally new place and the whole climbing week with people from all over the world."
 
-Photo: Pick a woman climbing on powerful, overhanging rock. Someone in the middle of a hard move — focused, not posing. Not a staged shot.
+On nervousness and what surprised her:
+"I'm climbing categories up to 6c, and my goal for the camp was to send my first 7a. I was pretty nervous — I joined the group of strangers, and it turned out that everyone in the group already knew each other, and I was the only newbie at this camp. But everyone was so supportive, and for me it was a huge surprise how many very strong climbers joined the camping! I was the weakest one, everyone was climbing 7s! It helps a lot to be surrounded by strong people, I was inspired by being with them. And also, everyone was a perfect belayer; it was a very nice surprise. Another surprise — I didn't know anything about Rodellar, so I had no expectations. But the thing is — I prefer vertical and technical routes, and Rodellar is definitely not like that. Everything is overhanging and powerful — at my first day I was terrified and was almost crying on my second route — 6c+ with the cave and the roof at the top of the route. But after a few falls (Jany made me to take several ones to feel safe) — I became much more confident and calm. I thought that I can't climb powerful routes, but it turned out — I was just doubting myself. On my last day I did 4 attempts on the very powerful 7a with long moves — and I was just one move away from sending it, it was amazing!"
+
+Most memorable moment:
+"My attempt on my 7a project. I was complaining that I can't do the moves, I'm too tired, and I want to go down. And Jany said: if you can talk, you can climb! And I climbed 2 more quickdraws on this overhang — and I was so surprised with myself, I couldn't believe it. So I realised that sometimes I just need to have a good push."
+
+What she learned:
+"My ability to climb long, powerful, overhanging routes — never tried it before."
+
+Jany's words she carries:
+"Always push your limits." / "Shut up and concentrate!" / "If you can talk, you can climb!"
+
+What she'd tell someone on the fence:
+"You never know your limits till you try."
+---
+
+RULES:
+- Write in first person (Anna's voice)
+- Keep the language honest, a little rough around the edges — she's not a professional writer and that's what makes it real
+- Pick 1–2 key moments from her answers — don't cram everything in
+- The quote on the card should be one of her actual sentences or Jany's phrase she mentioned
+- DO NOT add any climbing facts, route grades, or details she didn't mention
+- Preserve her original phrasing where possible
+
+Photo: a woman on overhanging rock, fighting through a hard move. Real moment, not posed.
 
 Attribution: Anna
-Context: Mind & Technique camp · Rodellar, May 2026
-
-Note: This post requires Anna's consent before publishing.`,
+Context: Rodellar, May 2026`,
   },
   {
     name: 'highlight_coaches',
