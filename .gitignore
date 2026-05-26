@@ -10,3 +10,4 @@ todo.md
 drafts/*.json
 photos/
 output/
+.env*
