@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-23",
+  "updated": "2026-05-26",
   "upcoming_camps": [
     { "name": "Sport Climbing Basics", "coach": "Laszlo & Petra", "date": "2026-06-06", "location": "Frankenjura", "url": "https://rockbusters.net" },
     { "name": "DEEP BLUE (Psicobloc)", "coach": "Arturo", "date": "2026-06-06", "location": "Mallorca", "url": "https://rockbusters.net" },
@@ -30,7 +30,12 @@
     { "name": "highlight_coaches",        "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
     { "name": "highlight_destinations",   "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
     { "name": "highlight_community",      "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
-    { "name": "highlight_rodellar",       "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" }
+    { "name": "highlight_rodellar",       "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
+    { "name": "camp_week_story",          "type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-31" },
+    { "name": "dolomites_story",          "type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-01" },
+    { "name": "jany_founding_story",      "type": "story_frame",    "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-02" },
+    { "name": "psicobloc_story",          "type": "story_frame",    "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-03" },
+    { "name": "rodellar_story",           "type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-04" }
   ],
   "info_needed": [
     { "from": "Jany", "what": "5-10 technique or mindset tips (1-2 sentences each)", "for": "highlight_tips" },
