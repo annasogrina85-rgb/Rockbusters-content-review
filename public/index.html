@@ -944,7 +944,7 @@ async function manualRefresh() {
 }
 
 async function postAction(draftName, action, body = {}) {
-  const res = await fetch(`${API}/api/draft/${draftName}/${action}`, {
+  const res = await fetch(`${API}/api/action?draft=${encodeURIComponent(draftName)}&action=${encodeURIComponent(action)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
