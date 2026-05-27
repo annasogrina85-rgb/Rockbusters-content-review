@@ -827,8 +827,20 @@ async function runJob(job, options = {}) {
 
   const effectiveJob = { ...job, brief: effectiveBrief };
 
-  // 1. Visual agent
-  const topPhotos = await analyzePhotos(effectiveJob.folder, effectiveJob.brief, effectiveJob.maxPhotos || 20);
+  // 1. Collect photos already used in other drafts (no repeats rule)
+  const usedPaths = new Set();
+  try {
+    const draftFiles = fs.readdirSync(DRAFTS_DIR).filter(f => f.endsWith('.json') && f !== `${job.name}.json`);
+    for (const df of draftFiles) {
+      const d = JSON.parse(fs.readFileSync(path.join(DRAFTS_DIR, df), 'utf8'));
+      if (d.photo) usedPaths.add(d.photo);
+      (d.slides || []).forEach(s => s.photo && usedPaths.add(s.photo));
+    }
+    if (usedPaths.size) console.log(`     🚫 Excluding ${usedPaths.size} photos already used in other drafts`);
+  } catch {}
+
+  // 2. Visual agent
+  const topPhotos = await analyzePhotos(effectiveJob.folder, effectiveJob.brief, effectiveJob.maxPhotos || 20, usedPaths);
 
   // 2. Text agent
   const postConfig = await generatePostContent(effectiveJob, topPhotos, feedback);
