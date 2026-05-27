@@ -66,12 +66,12 @@ async function blobCheck() {
     try { ({ put: blobPut, del: blobDel } = require('@vercel/blob')); } catch {
       fail('Vercel Blob', '@vercel/blob not installed — run: npm install @vercel/blob'); return;
     }
-    // Upload a tiny 1×1 pixel PNG
+    // Upload a tiny 1×1 pixel PNG (unique name each run to avoid CDN 404 cache)
     const png1px = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
-    const { url } = await blobPut('test/smoke-test.png', png1px, { access: 'public', addRandomSuffix: false, token });
-    // HEAD check
-    const r = await fetch(url, { method: 'HEAD' });
-    if (r.status !== 200) throw new Error(`HEAD returned ${r.status}`);
+    const { url } = await blobPut(`test/smoke-${Date.now()}.png`, png1px, { access: 'public', addRandomSuffix: false, token });
+    // GET check (Vercel Blob CDN doesn't support HEAD reliably)
+    const r = await fetch(url);
+    if (r.status !== 200) throw new Error(`GET returned ${r.status}`);
     // Cleanup
     await blobDel(url, { token });
     ok('Vercel Blob upload/read/delete');
@@ -171,7 +171,8 @@ async function photoUrlsCheck() {
 
       for (const { url, tag } of photos.slice(0, 1)) { // check first photo per draft
         if (!url || !url.startsWith('http')) { broken.push(`${name}/${tag}: no URL`); continue; }
-        const hr = await fetch(url, { method: 'HEAD' });
+        // Use GET — Vercel Blob CDN doesn't support HEAD reliably
+        const hr = await fetch(url);
         if (hr.status !== 200) broken.push(`${name}/${tag}: HTTP ${hr.status} — ${url.slice(0,60)}`);
       }
     }
