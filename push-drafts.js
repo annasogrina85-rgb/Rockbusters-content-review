@@ -2,19 +2,39 @@
 /**
  * Push local drafts to Vercel for Jany to review
  *
- * Photos are served directly from pCloud CDN — no Blob storage needed.
+ * Photos: if BLOB_READ_WRITE_TOKEN is set → upload to Vercel Blob (permanent URLs).
+ *         Otherwise → resolve pCloud CDN URLs (expire after a few hours).
  * Draft state is stored in Vercel KV.
  *
  * Usage:
  *   node push-drafts.js                          — push all drafts
  *   node push-drafts.js --draft a_muerte_camp    — push one draft
- *   node push-drafts.js --pull                   — pull Jany's decisions back
+ *   node push-drafts.js --pull                   — pull decisions back
  */
 
 require('dotenv').config({ override: true });
 const fs   = require('fs');
 const path = require('path');
 const https = require('https');
+
+// Vercel Blob — available when BLOB_READ_WRITE_TOKEN is set
+let blobPut = null;
+try { blobPut = require('@vercel/blob').put; } catch {}
+const useBlob = () => !!(blobPut && process.env.BLOB_READ_WRITE_TOKEN);
+
+// Blob upload — deterministic path so URL is stable across re-pushes
+async function uploadPhotoToBlob(localPath, draftName, key) {
+  const ext = path.extname(localPath).toLowerCase() || '.jpg';
+  const blobPath = `drafts/${draftName}/${key}${ext}`;
+  process.stdout.write(`     ☁️  Blob upload ${key}... `);
+  const { url } = await blobPut(blobPath, fs.readFileSync(localPath), {
+    access: 'public',
+    addRandomSuffix: false,
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
+  process.stdout.write(`done\n`);
+  return url;
+}
 
 const DRAFTS_DIR    = path.join(__dirname, 'drafts');
 const FEEDBACK_FILE = path.join(__dirname, 'feedback.json');
@@ -222,20 +242,41 @@ function collectPhotoPaths(draft) {
 }
 
 async function resolveAllPhotos(draft) {
-  const paths  = collectPhotoPaths(draft);
-  const urlMap = {};
-
-  for (const p of paths) {
-    const url = await resolvePhotoUrl(p);
-    if (url) urlMap[p] = url;
-  }
-
-  // Swap paths → CDN URLs in a deep clone
+  const draftName = draft.name || 'unknown';
   const d = JSON.parse(JSON.stringify(draft));
-  if (d.photo && urlMap[d.photo])      d.photo = urlMap[d.photo];
-  if (d.slides) d.slides.forEach(s => {
-    if (s.photo && urlMap[s.photo]) s.photo = urlMap[s.photo];
-  });
+
+  if (useBlob()) {
+    // ── Vercel Blob path (permanent URLs) ──────────────────────────────────────
+    if (d.photo && d.photo.startsWith('photos/')) {
+      const localPath = path.join(__dirname, d.photo);
+      if (fs.existsSync(localPath)) {
+        d.photo = await uploadPhotoToBlob(localPath, draftName, 'cover');
+      }
+    }
+    if (d.slides) {
+      for (let i = 0; i < d.slides.length; i++) {
+        const p = d.slides[i].photo;
+        if (p && p.startsWith('photos/')) {
+          const localPath = path.join(__dirname, p);
+          if (fs.existsSync(localPath)) {
+            d.slides[i].photo = await uploadPhotoToBlob(localPath, draftName, `slide${i}`);
+          }
+        }
+      }
+    }
+  } else {
+    // ── pCloud CDN fallback (URLs expire after a few hours) ────────────────────
+    const paths  = collectPhotoPaths(draft);
+    const urlMap = {};
+    for (const p of paths) {
+      const url = await resolvePhotoUrl(p);
+      if (url) urlMap[p] = url;
+    }
+    if (d.photo && urlMap[d.photo])      d.photo = urlMap[d.photo];
+    if (d.slides) d.slides.forEach(s => {
+      if (s.photo && urlMap[s.photo]) s.photo = urlMap[s.photo];
+    });
+  }
 
   return d;
 }
@@ -255,9 +296,9 @@ async function pushDraft(draftFile) {
     });
   }
 
-  process.stdout.write(`\n  📤 ${name} — resolving photos... `);
+  const photoMode = useBlob() ? '☁️  uploading to Blob' : '📡 resolving pCloud URLs';
+  process.stdout.write(`\n  📤 ${name} — ${photoMode}...\n`);
   const resolved = await resolveAllPhotos(draft);
-  console.log('done');
 
   // Embed original paths so CCR daily agent can re-resolve expired CDN URLs
   resolved._meta = resolved._meta || {};
