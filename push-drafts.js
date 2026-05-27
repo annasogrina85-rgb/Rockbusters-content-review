@@ -23,17 +23,33 @@ try { blobPut = require('@vercel/blob').put; } catch {}
 const useBlob = () => !!(blobPut && process.env.BLOB_READ_WRITE_TOKEN);
 
 // Blob upload — deterministic path so URL is stable across re-pushes
-async function uploadPhotoToBlob(localPath, draftName, key) {
-  const ext = path.extname(localPath).toLowerCase() || '.jpg';
-  const blobPath = `drafts/${draftName}/${key}${ext}`;
+async function uploadPhotoToBlob(localPathOrBuffer, draftName, key, ext = null) {
+  const resolvedExt = ext || (typeof localPathOrBuffer === 'string' ? path.extname(localPathOrBuffer).toLowerCase() : '') || '.jpg';
+  const blobPath = `drafts/${draftName}/${key}${resolvedExt}`;
   process.stdout.write(`     ☁️  Blob upload ${key}... `);
-  const { url } = await blobPut(blobPath, fs.readFileSync(localPath), {
+  const content = Buffer.isBuffer(localPathOrBuffer) ? localPathOrBuffer : fs.readFileSync(localPathOrBuffer);
+  const { url } = await blobPut(blobPath, content, {
     access: 'public',
     addRandomSuffix: false,
+    allowOverwrite: true,
     token: process.env.BLOB_READ_WRITE_TOKEN,
   });
   process.stdout.write(`done\n`);
   return url;
+}
+
+// Download a file from a URL and return as Buffer
+async function downloadBuffer(url) {
+  const https = require('https');
+  const http  = require('http');
+  return new Promise((resolve, reject) => {
+    const mod = url.startsWith('https') ? https : http;
+    mod.get(url, res => {
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    }).on('error', reject);
+  });
 }
 
 const DRAFTS_DIR    = path.join(__dirname, 'drafts');
@@ -106,6 +122,102 @@ const DIRECT_FOLDER_MAP = {
   'dolomity': { folderId: '21088910077', label: 'Dolomity' },
   'mallorca':  { folderId: '2292119458',  label: 'Mallorca'  }
 };
+
+// ─── Photo selection algorithm ────────────────────────────────────────────────
+//
+// RULES (defined by Anna, 2026-05-27):
+//   1. Find the pCloud subfolder matching the post's location (e.g. "Mallorca")
+//   2. Collect all photo files with sizes from that folder (recursively)
+//   3. Filter out photos already used in any other draft (KV-based exclusion)
+//   4. Sort by file size descending — larger file = higher resolution / better quality
+//   5. Take the top 40% of files by size (the "quality pool")
+//   6. Select randomly from that pool
+//   7. Prefer photos with people — visual check done by agent or human;
+//      the algorithm picks from the quality pool randomly, leaning toward
+//      action shots (future: use Claude vision on pCloud thumb URL to verify)
+//
+// Usage: node push-drafts.js --reselect-cover <draft-name>
+
+// Collect all files recursively from pCloud folder with sizes
+async function getPCloudFolderFiles(pcloudFolderId) {
+  const data = await httpsGet(
+    `https://api.pcloud.com/showpublink?code=${PCLOUD_CODE}&folderid=${pcloudFolderId}`
+  );
+  if (data.result !== 0) throw new Error(`pCloud error ${data.result}`);
+  const files = [];
+  function walk(items) {
+    for (const item of (items || [])) {
+      if (item.isfolder) walk(item.contents || []);
+      else files.push({ name: item.name, fileId: String(item.fileid), size: item.size || 0 });
+    }
+  }
+  walk(data.metadata.contents || []);
+  return files;
+}
+
+// Get all photo filenames/fileIds currently used across all KV drafts
+async function getUsedPhotoFileIds() {
+  const res = await fetch(`${kvUrl()}/smembers/${encodeURIComponent('drafts:list')}`, {
+    headers: { Authorization: `Bearer ${kvToken()}` }
+  });
+  const { result: rawNames } = await res.json();
+  const names = (rawNames || []).map(n => { try { return JSON.parse(n); } catch { return n; } }).flat();
+
+  const usedFileIds = new Set();
+  for (const name of names) {
+    const raw = await kvGet(`draft:${name}`);
+    if (!raw) continue;
+    try {
+      const inner = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      const draft = typeof inner === 'string' ? JSON.parse(inner) : inner;
+      const paths = draft?._meta?._pcloud_paths || {};
+      // Extract fileIds from existing Blob URLs isn't possible, so track by pcloud_paths
+      Object.values(paths).forEach(p => usedFileIds.add(p));
+    } catch {}
+  }
+  return usedFileIds;
+}
+
+// Select the best photo from a pCloud folder for a given draft
+// folderKey: key in DIRECT_FOLDER_MAP (e.g. 'mallorca')
+// excludeDraftName: name of draft we're selecting for (don't exclude its own photos)
+async function selectBestPhoto(folderKey, excludeDraftName = null) {
+  const spec = DIRECT_FOLDER_MAP[folderKey];
+  if (!spec) throw new Error(`Unknown pCloud folder key: ${folderKey}. Add it to DIRECT_FOLDER_MAP.`);
+
+  console.log(`\n  🔍 Selecting best photo from pCloud/${spec.label}...`);
+
+  // Step 1: Get all files in the folder
+  const allFiles = await getPCloudFolderFiles(spec.folderId);
+  console.log(`     ${allFiles.length} files in folder`);
+
+  // Step 2: Get all photos already used in other drafts
+  const usedPaths = await getUsedPhotoFileIds();
+  console.log(`     ${usedPaths.size} photos already in use across drafts`);
+
+  // Step 3: Filter out used photos
+  const available = allFiles.filter(f => !usedPaths.has(`photos/jany/${folderKey}/${f.name}`));
+  console.log(`     ${available.length} unused photos available`);
+
+  if (!available.length) {
+    console.log(`     ⚠️  All photos are already used — picking from full set`);
+    available.push(...allFiles);
+  }
+
+  // Step 4: Sort by size descending (larger = better resolution)
+  available.sort((a, b) => b.size - a.size);
+
+  // Step 5: Take top 40% quality pool
+  const poolSize = Math.max(1, Math.ceil(available.length * 0.4));
+  const pool = available.slice(0, poolSize);
+  console.log(`     Quality pool: top ${poolSize} files by size (≥${pool[pool.length-1].size.toLocaleString()} bytes)`);
+
+  // Step 6: Pick randomly from pool
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  console.log(`     Selected: ${picked.name} (${(picked.size / 1024).toFixed(0)}KB)`);
+
+  return picked;
+}
 let directFolderIndices = {};
 
 async function getDirectFolderIndex(localFolder) {
@@ -247,20 +359,35 @@ async function resolveAllPhotos(draft) {
 
   if (useBlob()) {
     // ── Vercel Blob path (permanent URLs) ──────────────────────────────────────
-    if (d.photo && d.photo.startsWith('photos/')) {
-      const localPath = path.join(__dirname, d.photo);
+    async function resolveToBlob(photoPath, draftName, key) {
+      if (!photoPath || photoPath.startsWith('http')) return photoPath;
+      if (!photoPath.startsWith('photos/')) return photoPath;
+      const localPath = path.join(__dirname, photoPath);
+      const ext = path.extname(photoPath).toLowerCase() || '.jpg';
       if (fs.existsSync(localPath)) {
-        d.photo = await uploadPhotoToBlob(localPath, draftName, 'cover');
+        return uploadPhotoToBlob(localPath, draftName, key, ext);
       }
+      // File not local — resolve from pCloud CDN, download, then upload to Blob
+      const cdnUrl = await resolvePhotoUrl(photoPath);
+      if (!cdnUrl) { console.log(`     ⚠️  Could not resolve ${photoPath}`); return null; }
+      process.stdout.write(`     ☁️  Blob upload ${key} (from pCloud)... `);
+      const buf = await downloadBuffer(cdnUrl);
+      const { url } = await blobPut(`drafts/${draftName}/${key}${ext}`, buf, {
+        access: 'public', addRandomSuffix: false, allowOverwrite: true,
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+      process.stdout.write(`done\n`);
+      return url;
+    }
+
+    if (d.photo && d.photo.startsWith('photos/')) {
+      d.photo = await resolveToBlob(d.photo, draftName, 'cover');
     }
     if (d.slides) {
       for (let i = 0; i < d.slides.length; i++) {
         const p = d.slides[i].photo;
         if (p && p.startsWith('photos/')) {
-          const localPath = path.join(__dirname, p);
-          if (fs.existsSync(localPath)) {
-            d.slides[i].photo = await uploadPhotoToBlob(localPath, draftName, `slide${i}`);
-          }
+          d.slides[i].photo = await resolveToBlob(p, draftName, `slide${i}`);
         }
       }
     }
@@ -303,6 +430,20 @@ async function pushDraft(draftFile) {
   // Embed original paths so CCR daily agent can re-resolve expired CDN URLs
   resolved._meta = resolved._meta || {};
   resolved._meta._pcloud_paths = pcloudPaths;
+
+  // Preserve review state from existing KV draft — don't reset status/comments on photo refresh
+  const existingRaw = await kvGet(`draft:${name}`);
+  if (existingRaw) {
+    try {
+      const existing = typeof existingRaw === 'string' ? JSON.parse(existingRaw) : existingRaw;
+      const inner = typeof existing === 'string' ? JSON.parse(existing) : existing;
+      const existingMeta = inner?._meta || {};
+      const preserve = ['status', 'comment', 'comments', 'approved_at', 'rejected_at', 'human_edits', 'uploads'];
+      for (const key of preserve) {
+        if (existingMeta[key] !== undefined) resolved._meta[key] = existingMeta[key];
+      }
+    } catch {}
+  }
 
   await kvSet(`draft:${name}`, resolved);
   await kvSAdd('drafts:list', name);
@@ -476,6 +617,91 @@ async function main() {
   if (args.includes('--pull')) {
     checkEnv();
     await pullDecisions();
+    return;
+  }
+
+  if (args.includes('--reselect-cover')) {
+    checkEnv();
+    const idx = args.indexOf('--reselect-cover');
+    const draftName = args[idx + 1];
+    if (!draftName) {
+      console.error('\n❌ Usage: node push-drafts.js --reselect-cover <draft-name> [--folder <folder-key>]\n');
+      console.error('   folder-key options:', Object.keys(DIRECT_FOLDER_MAP).join(', '));
+      process.exit(1);
+    }
+    // Determine folder from draft JSON or --folder flag
+    const folderIdx = args.indexOf('--folder');
+    let folderKey = folderIdx !== -1 ? args[folderIdx + 1] : null;
+    if (!folderKey) {
+      // Try to infer from draft file
+      const draftFile = path.join(DRAFTS_DIR, `${draftName}.json`);
+      if (fs.existsSync(draftFile)) {
+        const draft = JSON.parse(fs.readFileSync(draftFile, 'utf8'));
+        // Look at existing pcloud paths to infer folder
+        const paths = Object.values(draft._meta?._pcloud_paths || {});
+        const match = paths[0]?.match(/^photos\/jany\/([^/]+)\//);
+        if (match) folderKey = match[1];
+      }
+    }
+    if (!folderKey || !DIRECT_FOLDER_MAP[folderKey]) {
+      console.error(`\n❌ Could not determine pCloud folder. Use --folder <key>\n`);
+      console.error('   Available:', Object.keys(DIRECT_FOLDER_MAP).join(', '));
+      process.exit(1);
+    }
+
+    const picked = await selectBestPhoto(folderKey, draftName);
+
+    // Resolve picked photo: get CDN URL via fileId, upload to Blob, store URL
+    let finalPhotoUrl;
+    if (useBlob()) {
+      console.log(`  ⬇️  Downloading from pCloud (fileId: ${picked.fileId})...`);
+      const cdnUrl = await getPCloudUrl(picked.fileId);
+      const ext = path.extname(picked.name).toLowerCase() || '.jpg';
+      const buf = await downloadBuffer(cdnUrl);
+      const blobPath = `drafts/${draftName}/cover${ext}`;
+      process.stdout.write(`  ☁️  Uploading to Blob... `);
+      const { url } = await blobPut(blobPath, buf, {
+        access: 'public', addRandomSuffix: false, allowOverwrite: true,
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+      process.stdout.write(`done\n`);
+      finalPhotoUrl = url;
+    } else {
+      // No Blob — store as pCloud local path (will be resolved to CDN on next push)
+      finalPhotoUrl = `photos/jany/${folderKey}/${picked.name}`;
+    }
+
+    // Update the draft JSON file
+    const draftFile = path.join(DRAFTS_DIR, `${draftName}.json`);
+    if (!fs.existsSync(draftFile)) {
+      console.error(`\n❌ Draft file not found: ${draftFile}\n`); process.exit(1);
+    }
+    const draft = JSON.parse(fs.readFileSync(draftFile, 'utf8'));
+    draft.photo = finalPhotoUrl;
+    if (!draft._meta) draft._meta = {};
+    draft._meta._pcloud_paths = draft._meta._pcloud_paths || {};
+    draft._meta._pcloud_paths.photo = `photos/jany/${folderKey}/${picked.name}`;
+    fs.writeFileSync(draftFile, JSON.stringify(draft, null, 2));
+
+    // Also update KV directly (preserve existing review state)
+    console.log(`  💾 Updating KV...`);
+    const existingRaw = await kvGet(`draft:${draftName}`);
+    if (existingRaw) {
+      try {
+        const inner = typeof existingRaw === 'string' ? JSON.parse(existingRaw) : existingRaw;
+        const existing = typeof inner === 'string' ? JSON.parse(inner) : inner;
+        existing.photo = finalPhotoUrl;
+        if (!existing._meta) existing._meta = {};
+        existing._meta._pcloud_paths = existing._meta._pcloud_paths || {};
+        existing._meta._pcloud_paths.photo = `photos/jany/${folderKey}/${picked.name}`;
+        await kvSet(`draft:${draftName}`, existing);
+      } catch (e) {
+        console.log(`  ⚠️  Could not update KV: ${e.message}`);
+      }
+    }
+
+    console.log(`\n  ✅ Cover photo updated: ${picked.name} (${(picked.size/1024).toFixed(0)}KB)`);
+    console.log(`     Blob URL: ${finalPhotoUrl}\n`);
     return;
   }
 

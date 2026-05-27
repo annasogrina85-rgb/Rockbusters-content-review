@@ -199,8 +199,22 @@ function loadImageForVision(filePath) {
 }
 
 // ─── Visual Sub-Agent ─────────────────────────────────────────────────────────
+//
+// PHOTO SELECTION RULES (Anna, 2026-05-27):
+//   1. Find the pCloud folder matching the post's location (folder arg below)
+//   2. Filter out photos already used in other drafts (avoid repetition)
+//   3. Sort by file size descending — larger file = higher resolution
+//   4. Take top 40% by size (the "quality pool")
+//   5. From that pool, sample randomly — with visual scoring preferring:
+//      - People present (climbers, not empty rock)
+//      - Action shots over posed photos
+//      - Real moments, not promotional/posed
+//   6. Claude vision scores each sampled photo and returns top 5
+//
+// To re-select a cover photo for an existing draft without regenerating:
+//   node push-drafts.js --reselect-cover <draft-name> [--folder <folder-key>]
 
-async function analyzePhotos(folder, brief, maxSample = 20) {
+async function analyzePhotos(folder, brief, maxSample = 20, usedPaths = new Set()) {
   console.log(`\n  📸 Visual agent analyzing ${folder}...`);
 
   const folderPath = path.join(BASE_DIR, folder);
@@ -212,8 +226,15 @@ async function analyzePhotos(folder, brief, maxSample = 20) {
 
   if (!allFiles.length) throw new Error(`No photos in ${folder}`);
 
+  // Filter out photos already used in other drafts (rule #2)
+  const unusedFiles = allFiles.filter(f => !usedPaths.has(`${folder}/${f}`));
+  const filesToUse = unusedFiles.length >= 3 ? unusedFiles : allFiles; // fallback if nearly all used
+  if (unusedFiles.length < allFiles.length) {
+    console.log(`     Excluded ${allFiles.length - unusedFiles.length} already-used photos`);
+  }
+
   // Sort by file size desc → top 40% (sharpest/most detailed) → random sample N
-  const withSize = allFiles.map(f => ({
+  const withSize = filesToUse.map(f => ({
     f,
     size: fs.statSync(path.join(folderPath, f)).size
   }));
