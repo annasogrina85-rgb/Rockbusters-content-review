@@ -29,7 +29,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const nodemailer = require('nodemailer');
 
-const REVIEW_URL  = 'https://vercel-five-rho-74.vercel.app';
+const REVIEW_URL  = 'https://rockbusters-content-maker.vercel.app';
 const JANY_DOC    = 'https://docs.google.com/document/d/1xgABM6ukVvb0OdwVOTp8N-42xdpfiQdg7W9HbB5DWII/edit';
 const DRIVE_FOLDER = 'https://drive.google.com/drive/folders/1zvbmuYWH-k3TMXNxA_N1ZKZCHHBlzDpj';
 const KV_URL      = () => process.env.KV_REST_API_URL;
