@@ -1,0 +1,36 @@
+{
+  "type": "carousel",
+  "name": "anna_story_post",
+  "photo": "https://ye5rz9m4c9rioweq.public.blob.vercel-storage.com/drafts/anna_story_post/cover.jpg",
+  "slides": [
+    {
+      "photo": "https://ye5rz9m4c9rioweq.public.blob.vercel-storage.com/drafts/anna_story_post/slide0.jpg",
+      "label": "",
+      "headline": "",
+      "body": ""
+    },
+    {
+      "photo": "https://ye5rz9m4c9rioweq.public.blob.vercel-storage.com/drafts/anna_story_post/slide1.jpg",
+      "label": "",
+      "headline": "",
+      "body": ""
+    },
+    {
+      "photo": "https://ye5rz9m4c9rioweq.public.blob.vercel-storage.com/drafts/anna_story_post/slide2.jpg",
+      "label": "",
+      "headline": "",
+      "body": ""
+    }
+  ],
+  "caption": "I was the weakest climber in the group.\n\nI climb up to 6c. Everyone else was climbing 7s. I was the only newbie, and everyone already knew each other.\n\nI prefer vertical, technical routes. Rodellar is the opposite — everything overhanging and powerful. On my first day I was almost crying on a 6c+ with a cave and a roof at the top.\n\nJany made me take a few falls. After that I was calmer.\n\nMy goal for the camp was my first 7a. On my last day I tried a very powerful 7a with long moves. Four attempts. One move away from sending it.\n\nDuring one of those attempts I was complaining — I can't do the moves, I'm too tired, I want to go down.\n\nJany said: if you can talk, you can climb.\n\nI climbed two more quickdraws on the overhang. I couldn't believe it was me.\n\nI thought I couldn't climb powerful routes. Turns out I was just doubting myself.\n\nYou never know your limits till you try.\n\n— Anna, Rodellar, May 2026\n\n#rodellar #rockbusters #climbingcamp #sportclimbing #firsttry #mindset #climbinglife #overhang #pushinglimits #rockclimbing",
+  "_meta": {
+    "generated_at": "2026-05-26T12:13:55.051Z",
+    "status": "pending",
+    "version": 1,
+    "comments": [],
+    "human_edits": {
+      "photos_from_drive": "Anna_Sogrina/",
+      "updated_at": "2026-05-28"
+    }
+  }
+}
