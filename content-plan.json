@@ -1,48 +1,242 @@
 {
   "updated": "2026-05-26",
   "upcoming_camps": [
-    { "name": "Sport Climbing Basics", "coach": "Laszlo & Petra", "date": "2026-06-06", "location": "Frankenjura", "url": "https://rockbusters.net" },
-    { "name": "DEEP BLUE (Psicobloc)", "coach": "Arturo", "date": "2026-06-06", "location": "Mallorca", "url": "https://rockbusters.net" },
-    { "name": "Dolomite Dolce Vita", "coach": "Klemen Becan", "date": "2026-06-27", "location": "Dolomites", "url": "https://rockbusters.net" },
-    { "name": "Summer Youth Rock Lab", "coach": "TBC", "date": "2026-07-04", "location": "Cavallers, Spain", "url": "https://rockbusters.net" },
-    { "name": "A MUERTE", "coach": "Petra & Jany", "date": "2026-10-24", "location": "Rodellar", "url": "https://rockbusters.net", "_note": "Do not create promo posts until Sept 2026 — too early" }
+    {
+      "name": "Sport Climbing Basics",
+      "coach": "Laszlo & Petra",
+      "date": "2026-06-06",
+      "location": "Frankenjura",
+      "url": "https://rockbusters.net"
+    },
+    {
+      "name": "DEEP BLUE (Psicobloc)",
+      "coach": "Arturo",
+      "date": "2026-06-06",
+      "location": "Mallorca",
+      "url": "https://rockbusters.net"
+    },
+    {
+      "name": "Dolomite Dolce Vita",
+      "coach": "Klemen Becan",
+      "date": "2026-06-27",
+      "location": "Dolomites",
+      "url": "https://rockbusters.net"
+    },
+    {
+      "name": "Summer Youth Rock Lab",
+      "coach": "TBC",
+      "date": "2026-07-04",
+      "location": "Cavallers, Spain",
+      "url": "https://rockbusters.net"
+    },
+    {
+      "name": "A MUERTE",
+      "coach": "Petra & Jany",
+      "date": "2026-10-24",
+      "location": "Rodellar",
+      "url": "https://rockbusters.net",
+      "_note": "Do not create promo posts until Sept 2026 — too early"
+    }
   ],
   "highlights": [
-    { "name": "Camps",        "draft": "highlight_camps",        "status": "needs_caption",    "blocker": "Waiting for Jany's input on camp descriptions" },
-    { "name": "Progress",     "draft": "highlight_progress",     "status": "needs_caption",    "blocker": "Waiting for Jany's input" },
-    { "name": "Coaches",      "draft": "highlight_coaches",      "status": "pending_review",   "blocker": null },
-    { "name": "Destinations", "draft": "highlight_destinations", "status": "pending_review",   "blocker": null },
-    { "name": "Upcoming",     "draft": "highlight_upcoming",     "status": "pending_review",   "blocker": null },
-    { "name": "People",       "draft": "highlight_community",    "status": "pending_review",   "blocker": null },
-    { "name": "Rodellar",     "draft": "highlight_rodellar",     "status": "pending_review",   "blocker": null },
-    { "name": "Story",        "draft": null,                     "status": "blocked",          "blocker": "Need Jany's founding story — how Rockbusters started, why Rodellar" },
-    { "name": "Tips",         "draft": null,                     "status": "blocked",          "blocker": "Need 5-10 technique tips from Jany or Klemen" },
-    { "name": "FAQ",          "draft": null,                     "status": "blocked",          "blocker": "Need FAQ list from Jany — most common questions from camp participants" }
+    {
+      "name": "Camps",
+      "draft": "highlight_camps",
+      "status": "needs_caption",
+      "blocker": "Waiting for Jany's input on camp descriptions"
+    },
+    {
+      "name": "Progress",
+      "draft": "highlight_progress",
+      "status": "needs_caption",
+      "blocker": "Waiting for Jany's input"
+    },
+    {
+      "name": "Coaches",
+      "draft": "highlight_coaches",
+      "status": "pending_review",
+      "blocker": null
+    },
+    {
+      "name": "Destinations",
+      "draft": "highlight_destinations",
+      "status": "pending_review",
+      "blocker": null
+    },
+    {
+      "name": "Upcoming",
+      "draft": "highlight_upcoming",
+      "status": "pending_review",
+      "blocker": null
+    },
+    {
+      "name": "People",
+      "draft": "highlight_community",
+      "status": "pending_review",
+      "blocker": null
+    },
+    {
+      "name": "Rodellar",
+      "draft": "highlight_rodellar",
+      "status": "pending_review",
+      "blocker": null
+    },
+    {
+      "name": "Story",
+      "draft": null,
+      "status": "blocked",
+      "blocker": "Need Jany's founding story — how Rockbusters started, why Rodellar"
+    },
+    {
+      "name": "Tips",
+      "draft": null,
+      "status": "blocked",
+      "blocker": "Need 5-10 technique tips from Jany or Klemen"
+    },
+    {
+      "name": "FAQ",
+      "draft": null,
+      "status": "blocked",
+      "blocker": "Need FAQ list from Jany — most common questions from camp participants"
+    }
   ],
   "posts": [
-    { "name": "highlight_story",          "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
-    { "name": "sport_basics_announcement","type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-27" },
-    { "name": "deep_blue_announcement",   "type": "carousel",       "status": "pending_review",  "blocker": "Need Mallorca/psicobloc photos from Arturo",        "publish_after": "2026-05-28" },
-    { "name": "dolce_vita_announcement",  "type": "carousel",       "status": "pending_review",  "blocker": "Need Dolomites photos — not in library yet",        "publish_after": "2026-05-29" },
-    { "name": "youth_camp_announcement",  "type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-30" },
-    { "name": "anna_story_post",          "type": "quote_card",     "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-28" },
-    { "name": "participant_breakthrough", "type": "quote_card",     "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-27" },
-    { "name": "highlight_coaches",        "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
-    { "name": "highlight_destinations",   "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
-    { "name": "highlight_community",      "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
-    { "name": "highlight_rodellar",       "type": "highlight_cover","status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-26" },
-    { "name": "camp_week_story",          "type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-05-31" },
-    { "name": "dolomites_story",          "type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-01" },
-    { "name": "jany_founding_story",      "type": "story_frame",    "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-02" },
-    { "name": "psicobloc_story",          "type": "story_frame",    "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-03" },
-    { "name": "rodellar_story",           "type": "carousel",       "status": "pending_review",  "blocker": null,                                               "publish_after": "2026-06-04" }
+    {
+      "name": "highlight_story",
+      "type": "highlight_cover",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-26"
+    },
+    {
+      "name": "sport_basics_announcement",
+      "type": "carousel",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-27"
+    },
+    {
+      "name": "deep_blue_announcement",
+      "type": "carousel",
+      "status": "pending_review",
+      "blocker": "Need Mallorca/psicobloc photos from Arturo",
+      "publish_after": "2026-05-28"
+    },
+    {
+      "name": "dolce_vita_announcement",
+      "type": "carousel",
+      "status": "pending_review",
+      "blocker": "Need Dolomites photos — not in library yet",
+      "publish_after": "2026-05-29"
+    },
+    {
+      "name": "youth_camp_announcement",
+      "type": "carousel",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-30"
+    },
+    {
+      "name": "anna_story_post",
+      "type": "quote_card",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-28"
+    },
+    {
+      "name": "participant_breakthrough",
+      "type": "quote_card",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-27"
+    },
+    {
+      "name": "highlight_coaches",
+      "type": "highlight_cover",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-26"
+    },
+    {
+      "name": "highlight_destinations",
+      "type": "highlight_cover",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-26"
+    },
+    {
+      "name": "highlight_community",
+      "type": "highlight_cover",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-26"
+    },
+    {
+      "name": "highlight_rodellar",
+      "type": "highlight_cover",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-26"
+    },
+    {
+      "name": "camp_week_story",
+      "type": "carousel",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-05-31"
+    },
+    {
+      "name": "dolomites_story",
+      "type": "carousel",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-06-01"
+    },
+    {
+      "name": "jany_founding_story",
+      "type": "story_frame",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-06-02"
+    },
+    {
+      "name": "rodellar_story",
+      "type": "carousel",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-06-04"
+    }
   ],
   "info_needed": [
-    { "from": "Jany", "what": "5-10 technique or mindset tips (1-2 sentences each)", "for": "highlight_tips" },
-    { "from": "Jany", "what": "Most common questions from camp participants (FAQ)", "for": "highlight_faq" },
-    { "from": "Jany", "what": "Photo of Petra Pivonkova (portrait for coach intro)", "for": "petra_intro slide 4" },
-    { "from": "Jany", "what": "Dolomites photos folder — for Dolce Vita promo", "for": "dolce_vita_announcement" },
-    { "from": "Jany", "what": "Mallorca / psicobloc photos — for Deep Blue promo", "for": "deep_blue_announcement" },
-    { "from": "Anna", "what": "Review the generated post — based on your Rodellar interview answers. Confirm or edit before publishing.", "for": "anna_story_post" }
+    {
+      "from": "Jany",
+      "what": "5-10 technique or mindset tips (1-2 sentences each)",
+      "for": "highlight_tips"
+    },
+    {
+      "from": "Jany",
+      "what": "Most common questions from camp participants (FAQ)",
+      "for": "highlight_faq"
+    },
+    {
+      "from": "Jany",
+      "what": "Photo of Petra Pivonkova (portrait for coach intro)",
+      "for": "petra_intro slide 4"
+    },
+    {
+      "from": "Jany",
+      "what": "Dolomites photos folder — for Dolce Vita promo",
+      "for": "dolce_vita_announcement"
+    },
+    {
+      "from": "Jany",
+      "what": "Mallorca / psicobloc photos — for Deep Blue promo",
+      "for": "deep_blue_announcement"
+    },
+    {
+      "from": "Anna",
+      "what": "Review the generated post — based on your Rodellar interview answers. Confirm or edit before publishing.",
+      "for": "anna_story_post"
+    }
   ]
 }
