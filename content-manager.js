@@ -120,7 +120,7 @@ On powerful, overhanging routes she'd never tried before. In a style she thought
 
 That's Rodellar. That's what happens when you stop managing your limits and start testing them.
 
-Next Rodellar camp: A MUERTE with Patxi Usobiaga, May 25.
+Next camps: Sport Climbing Basics in Frankenjura & DEEP BLUE Psicobloc in Mallorca, Jun 6.
 Link in bio.
 
 #rodellar #rockbusters #climbingcamp #sportclimbing #klemen #mindandtechnique #sendit #climbinglife #rockclimbing #pushinglimits"
@@ -307,10 +307,28 @@ Return only valid JSON — no preamble, no explanation.`
 
 // ─── Text Sub-Agent ───────────────────────────────────────────────────────────
 
+// Returns a block listing upcoming camps from content-plan.json so the text
+// agent always uses correct, current information and never invents camp details.
+function buildUpcomingCampsBlock() {
+  try {
+    const planFile = path.join(BASE_DIR, 'content-plan.json');
+    if (!fs.existsSync(planFile)) return '';
+    const plan = JSON.parse(fs.readFileSync(planFile, 'utf8'));
+    const today = new Date();
+    const camps = (plan.upcoming_camps || [])
+      .filter(c => !c._note?.toLowerCase().includes('too early') && new Date(c.date) >= today)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    if (!camps.length) return '';
+    const lines = camps.map(c => `- ${c.name} with ${c.coach} · ${c.location} · ${c.date}${c.url ? ' · ' + c.url : ''}`);
+    return `\n\n## Current upcoming camps (use these for any CTAs — never invent camp details)\n${lines.join('\n')}`;
+  } catch { return ''; }
+}
+
 async function generatePostContent(job, topPhotos, feedback) {
   console.log(`\n  ✍️  Text agent writing ${job.type}...`);
 
   const feedbackNote = buildFeedbackContext(feedback);
+  const upcomingCampsBlock = buildUpcomingCampsBlock();
 
   const prompt = `Write a ${job.type} Instagram post for Rockbusters.
 
@@ -319,7 +337,7 @@ ${job.brief}
 
 ## Photos selected by visual agent
 ${topPhotos.map((p, i) => `${i + 1}. ${p.path}\n   ${p.description} (score: ${p.overall}, best for: ${p.best_for})`).join('\n')}
-${feedbackNote}
+${feedbackNote}${upcomingCampsBlock}
 
 Use these photos for the post. Assign each photo to the slot that makes most sense given the description and score.
 
