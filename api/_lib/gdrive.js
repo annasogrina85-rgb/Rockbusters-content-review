@@ -95,6 +95,17 @@ export async function resolveFolderPath(segments) {
   return parent;
 }
 
+// Find a folder by name anywhere the caller can see (incl. shared-with-me).
+// Used with a service account that only has the target folder shared to it,
+// so we can't walk down from the owner's root.
+export async function findFolderByName(name) {
+  const q = encodeURIComponent(
+    `mimeType='application/vnd.google-apps.folder' and trashed=false and name='${name.replace(/'/g, "\\'")}'`
+  );
+  const d = await driveGet(`/files?q=${q}&fields=files(id,name)&pageSize=10&includeItemsFromAllDrives=true&supportsAllDrives=true`);
+  return d.files?.[0]?.id || null;
+}
+
 // List immediate children (files + folders) of a folder.
 export async function listChildren(folderId) {
   const out = [];
@@ -102,7 +113,7 @@ export async function listChildren(folderId) {
   do {
     const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
     const pt = pageToken ? `&pageToken=${pageToken}` : '';
-    const d = await driveGet(`/files?q=${q}&fields=nextPageToken,files(id,name,mimeType,size,thumbnailLink)&pageSize=200${pt}`);
+    const d = await driveGet(`/files?q=${q}&fields=nextPageToken,files(id,name,mimeType,size,thumbnailLink)&pageSize=200&includeItemsFromAllDrives=true&supportsAllDrives=true${pt}`);
     out.push(...(d.files || []));
     pageToken = d.nextPageToken || '';
   } while (pageToken);

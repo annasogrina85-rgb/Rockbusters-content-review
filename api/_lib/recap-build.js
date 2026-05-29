@@ -1,7 +1,7 @@
 import { kv } from '@vercel/kv';
 import Anthropic from '@anthropic-ai/sdk';
 import { put } from '@vercel/blob';
-import { resolveFolderPath, listChildren, downloadText, imageJpeg, isImage } from './gdrive.js';
+import { findFolderByName, listChildren, downloadText, imageJpeg, isImage } from './gdrive.js';
 
 /**
  * Cloud "week recap" generator. Reads a camp folder from Drive
@@ -9,7 +9,13 @@ import { resolveFolderPath, listChildren, downloadText, imageJpeg, isImage } fro
  * writes a recap from ONLY the participants' own words, and pushes a draft.
  */
 
-const CAMPS_PATH = ['Rockbusters Marketing', '05_UGC_Community', 'Camps'];
+// The service account only has the "Camps" folder shared to it, so we locate
+// it directly by name rather than walking down from the Drive root.
+async function getCampsFolderId() {
+  const id = await findFolderByName('Camps');
+  if (!id) throw new Error('Camps folder not visible — is it shared with the service account?');
+  return id;
+}
 
 const TONE = `You are the content writer for Rockbusters Climbing (Jany, Rodellar). Write like a real climber, not marketing: short sentences, specific details, honest about fear before the breakthrough, understated. Use "we". Never use "embark on a journey", "transform", "incredible", "amazing", "are you ready", exclamation marks (unless quoting), emojis, or more than 12 hashtags.
 
@@ -73,10 +79,13 @@ export async function buildRecap(camp, { slides = 4 } = {}) {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error('no ANTHROPIC_API_KEY');
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const campFolderId = await resolveFolderPath([...CAMPS_PATH, camp]);
-  if (!campFolderId) throw new Error(`camp folder not found: ${camp}`);
+  const campsId = await getCampsFolderId();
+  const campFolder = (await listChildren(campsId)).find(
+    e => e.mimeType === 'application/vnd.google-apps.folder' && e.name === camp
+  );
+  if (!campFolder) throw new Error(`camp folder not found: ${camp}`);
 
-  const children = await listChildren(campFolderId);
+  const children = await listChildren(campFolder.id);
   const images = children.filter(isImage);
   if (!images.length) throw new Error('no photos in camp folder');
 
@@ -123,8 +132,7 @@ export async function buildRecap(camp, { slides = 4 } = {}) {
  * have photos, and don't yet have a recap draft. Returns camp names to build.
  */
 export async function findReadyCamps() {
-  const campsId = await resolveFolderPath(CAMPS_PATH);
-  if (!campsId) return [];
+  const campsId = await getCampsFolderId();
   const entries = await listChildren(campsId);
   const folders = entries.filter(e => e.mimeType === 'application/vnd.google-apps.folder');
 
