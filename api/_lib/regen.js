@@ -1,5 +1,7 @@
 import { kv } from '@vercel/kv';
 import Anthropic from '@anthropic-ai/sdk';
+import { put } from '@vercel/blob';
+import { resolveCampFolderId, listFolderImages, downloadFile, pickBestPhotoWithVision } from './pcloud.js';
 
 /**
  * Comment-driven regeneration — shared logic used by the cron endpoints.
@@ -74,7 +76,64 @@ function humanComments(meta) {
 
 const PHOTO_HINT = /(photo|picture|image|cover|фот|обложк|сним|картин|видео|video)/i;
 
-async function regenOne(client, name) {
+// Which pCloud location folder does this draft draw from? (e.g. "mallorca")
+function folderKeyFromDraft(draft) {
+  const paths = Object.values(draft._meta?._pcloud_paths || {});
+  const counts = {};
+  for (const p of paths) {
+    const seg = String(p).split('/'); // photos/jany/<folder>/file
+    if (seg.length >= 4 && seg[0] === 'photos' && seg[1] === 'jany') {
+      counts[seg[2]] = (counts[seg[2]] || 0) + 1;
+    }
+  }
+  let best = null, bc = 0;
+  for (const [k, c] of Object.entries(counts)) if (c > bc) { bc = c; best = k; }
+  return best;
+}
+
+/**
+ * Swap the cover photo for a new vision-picked shot from the matching pCloud folder.
+ * Returns { ok, file } on success or { ok:false, reason } otherwise.
+ * usedNames: Set of pCloud filenames already used across drafts (to avoid repeats).
+ */
+async function swapCoverPhoto(client, name, draft, usedNames) {
+  const folderKey = folderKeyFromDraft(draft);
+  if (!folderKey) return { ok: false, reason: 'no folder info on draft' };
+
+  const resolved = await resolveCampFolderId(folderKey);
+  if (!resolved) return { ok: false, reason: `no pCloud folder for "${folderKey}"` };
+
+  const all = await listFolderImages(resolved.folderId);
+  if (!all.length) return { ok: false, reason: 'folder has no images' };
+
+  // Exclude photos already used anywhere; fall back to all if everything is used
+  let pool = all.filter(f => !usedNames.has(f.name));
+  if (pool.length < 3) pool = all;
+
+  // Quality pool: top 40% by size, then let vision choose the best shot
+  pool.sort((a, b) => b.size - a.size);
+  const top = pool.slice(0, Math.max(3, Math.ceil(pool.length * 0.4)));
+  const picked = await pickBestPhotoWithVision(client, top, { brief: draft.caption?.slice(0, 200) || '' });
+
+  // Download full-res and store in Blob under a fresh name (busts CDN cache)
+  const buf = await downloadFile(picked.fileId);
+  const { url } = await put(`drafts/${name}/cover_${Date.now()}.jpg`, buf, {
+    access: 'public', addRandomSuffix: false, token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
+
+  // Apply to cover (top-level photo + carousel cover slide if present)
+  draft.photo = url;
+  if (Array.isArray(draft.slides) && draft.slides[0] && !draft.slides[0].video) {
+    draft.slides[0].photo = url;
+  }
+  draft._meta = draft._meta || {};
+  draft._meta._pcloud_paths = draft._meta._pcloud_paths || {};
+  draft._meta._pcloud_paths.photo = `photos/jany/${folderKey}/${picked.name}`;
+
+  return { ok: true, file: picked.name, folder: resolved.label };
+}
+
+async function regenOne(client, name, usedNames) {
   const draft = await kv.get(`draft:${name}`);
   const obj = typeof draft === 'string' ? JSON.parse(draft) : draft;
   if (!obj) return { name, skipped: 'not found' };
@@ -113,6 +172,16 @@ Return ONLY the JSON object, no preamble.`;
 
   const merged = mergeText(obj, revised);
 
+  // If a photo change was requested, try a vision-based swap from pCloud.
+  let photoSwap = null;
+  if (photoRequested) {
+    try {
+      photoSwap = await swapCoverPhoto(client, name, merged, usedNames);
+    } catch (e) {
+      photoSwap = { ok: false, reason: e.message };
+    }
+  }
+
   // Bookkeeping
   merged._meta = merged._meta || {};
   const prevVersion = merged._meta.version || 1;
@@ -122,13 +191,14 @@ Return ONLY the JSON object, no preamble.`;
     ...(merged._meta.comments_history || []),
     ...comments.map(c => ({ ...c, addressed_in_version: prevVersion + 1 })),
   ];
-  merged._meta.comments = photoRequested
-    ? [{ text: '⚠️ Photo/video change requested — handle manually (text was auto-revised)', at: new Date().toISOString(), system: true }]
+  // Leave a system note only if a photo was requested but the swap failed.
+  merged._meta.comments = (photoRequested && !photoSwap?.ok)
+    ? [{ text: `⚠️ Photo change requested but auto-swap failed (${photoSwap?.reason || 'unknown'}) — change manually`, at: new Date().toISOString(), system: true }]
     : [];
   merged._meta.last_regen = new Date().toISOString();
 
   await kv.set(`draft:${name}`, JSON.stringify(merged));
-  return { name, ok: true, version: merged._meta.version, photoRequested };
+  return { name, ok: true, version: merged._meta.version, photoRequested, photoSwap };
 }
 
 /**
@@ -143,12 +213,18 @@ export async function runRegen({ limit = 6 } = {}) {
   const rawNames = await kv.smembers('drafts:list');
   const names = (rawNames || []).map(normalizeName).filter(Boolean);
 
-  // Find drafts that actually need revision
+  // Find drafts that need revision + collect every pCloud filename already in use
   const queue = [];
+  const usedNames = new Set();
   for (const name of names) {
     const d = await kv.get(`draft:${name}`);
     const obj = typeof d === 'string' ? JSON.parse(d) : d;
-    if (obj?._meta?.status === 'needs_revision' && humanComments(obj._meta).length) {
+    if (!obj) continue;
+    for (const p of Object.values(obj._meta?._pcloud_paths || {})) {
+      const fn = String(p).split('/').pop();
+      if (fn) usedNames.add(fn);
+    }
+    if (obj._meta?.status === 'needs_revision' && humanComments(obj._meta).length) {
       queue.push(name);
     }
   }
@@ -156,7 +232,7 @@ export async function runRegen({ limit = 6 } = {}) {
   const results = [];
   for (const name of queue.slice(0, limit)) {
     try {
-      results.push(await regenOne(client, name));
+      results.push(await regenOne(client, name, usedNames));
     } catch (e) {
       results.push({ name, error: e.message });
     }
