@@ -25,6 +25,15 @@ export default async function handler(req, res) {
       meta.approved_at = new Date().toISOString();
       meta.updated_at = new Date().toISOString();
 
+      // Approving resolves any open comments — archive them so they don't linger.
+      if (meta.comments && meta.comments.length) {
+        meta.comments_history = [
+          ...(meta.comments_history || []),
+          ...meta.comments.map(c => ({ ...c, resolved_by: 'approve', resolved_at: new Date().toISOString() })),
+        ];
+        meta.comments = [];
+      }
+
       // Capture human text edits made before approving
       const { edited_caption } = req.body || {};
       if (edited_caption && edited_caption.trim() !== (data.caption || '').trim()) {
