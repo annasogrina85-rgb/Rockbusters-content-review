@@ -96,7 +96,7 @@ function folderKeyFromDraft(draft) {
  * Returns { ok, file } on success or { ok:false, reason } otherwise.
  * usedNames: Set of pCloud filenames already used across drafts (to avoid repeats).
  */
-async function swapCoverPhoto(client, name, draft, usedNames) {
+async function swapCoverPhoto(client, name, draft, usedNames, hint = '') {
   const folderKey = folderKeyFromDraft(draft);
   if (!folderKey) return { ok: false, reason: 'no folder info on draft' };
 
@@ -113,10 +113,13 @@ async function swapCoverPhoto(client, name, draft, usedNames) {
   let pool = all.filter(f => !usedNorm.has(norm(f.name)));
   if (pool.length < 3) pool = all;
 
-  // Quality pool: top 40% by size, then let vision choose the best shot
+  // Candidate set: highest-resolution unused shots, then let vision choose.
   pool.sort((a, b) => b.size - a.size);
-  const top = pool.slice(0, Math.max(3, Math.ceil(pool.length * 0.4)));
-  const picked = await pickBestPhotoWithVision(client, top, { brief: draft.caption?.slice(0, 200) || '' });
+  const top = pool.slice(0, 8);
+  const picked = await pickBestPhotoWithVision(client, top, {
+    brief: draft.caption?.slice(0, 200) || '',
+    prefer: hint || 'a sharp shot with people climbing or a real action/candid moment',
+  });
 
   // Fetch a web-sized image (not the 40MB original) and store in Blob under a
   // fresh name (busts CDN cache)
@@ -180,7 +183,8 @@ Return ONLY the JSON object, no preamble.`;
   let photoSwap = null;
   if (photoRequested) {
     try {
-      photoSwap = await swapCoverPhoto(client, name, merged, usedNames);
+      const hint = comments.map(c => c.text).join('; ');
+      photoSwap = await swapCoverPhoto(client, name, merged, usedNames, hint);
     } catch (e) {
       photoSwap = { ok: false, reason: e.message };
     }
