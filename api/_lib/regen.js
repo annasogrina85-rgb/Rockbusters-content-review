@@ -1,7 +1,7 @@
 import { kv } from '@vercel/kv';
 import Anthropic from '@anthropic-ai/sdk';
 import { put } from '@vercel/blob';
-import { resolveCampFolderId, listFolderImages, downloadFile, pickBestPhotoWithVision } from './pcloud.js';
+import { resolveCampFolderId, listFolderImages, webImage, pickBestPhotoWithVision } from './pcloud.js';
 
 /**
  * Comment-driven regeneration — shared logic used by the cron endpoints.
@@ -106,8 +106,11 @@ async function swapCoverPhoto(client, name, draft, usedNames) {
   const all = await listFolderImages(resolved.folderId);
   if (!all.length) return { ok: false, reason: 'folder has no images' };
 
-  // Exclude photos already used anywhere; fall back to all if everything is used
-  let pool = all.filter(f => !usedNames.has(f.name));
+  // Exclude photos already used anywhere (normalize spaces/underscores/case);
+  // fall back to all if everything is used
+  const norm = s => String(s).toLowerCase().replace(/[ _]+/g, '_');
+  const usedNorm = new Set([...usedNames].map(norm));
+  let pool = all.filter(f => !usedNorm.has(norm(f.name)));
   if (pool.length < 3) pool = all;
 
   // Quality pool: top 40% by size, then let vision choose the best shot
@@ -115,8 +118,9 @@ async function swapCoverPhoto(client, name, draft, usedNames) {
   const top = pool.slice(0, Math.max(3, Math.ceil(pool.length * 0.4)));
   const picked = await pickBestPhotoWithVision(client, top, { brief: draft.caption?.slice(0, 200) || '' });
 
-  // Download full-res and store in Blob under a fresh name (busts CDN cache)
-  const buf = await downloadFile(picked.fileId);
+  // Fetch a web-sized image (not the 40MB original) and store in Blob under a
+  // fresh name (busts CDN cache)
+  const buf = await webImage(picked.fileId, '1280x1280');
   const { url } = await put(`drafts/${name}/cover_${Date.now()}.jpg`, buf, {
     access: 'public', addRandomSuffix: false, token: process.env.BLOB_READ_WRITE_TOKEN,
   });

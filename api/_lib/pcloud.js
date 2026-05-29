@@ -31,11 +31,20 @@ async function getJson(url) {
   return d;
 }
 
-// Walk the whole public link once, collect every folder as {name, slug, folderid, parentSlug}
-let _folderCache = null;
-async function allFolders() {
-  if (_folderCache) return _folderCache;
+// NOTE: showpublink&folderid=X does NOT scope to the folder on a public link —
+// it always returns the whole archive. So we fetch the full tree once and
+// navigate it by folderid ourselves.
+let _treeCache = null;
+async function getTree() {
+  if (_treeCache) return _treeCache;
   const d = await getJson(`${API}/showpublink?code=${PCLOUD_CODE}`);
+  _treeCache = d.metadata;
+  return _treeCache;
+}
+
+// Walk the whole tree, collect every folder as {name, slug, folderid, parentSlug}
+async function allFolders() {
+  const root = await getTree();
   const out = [];
   const walk = (items, parentSlug) => {
     for (const it of (items || [])) {
@@ -46,9 +55,25 @@ async function allFolders() {
       }
     }
   };
-  walk(d.metadata.contents || [], slug(d.metadata.name));
-  _folderCache = out;
+  walk(root.contents || [], slug(root.name));
   return out;
+}
+
+// Find a folder node anywhere in the tree by its folderid
+async function findFolderNode(folderId) {
+  const root = await getTree();
+  let found = null;
+  const walk = (items) => {
+    for (const it of (items || [])) {
+      if (found) return;
+      if (it.isfolder) {
+        if (String(it.folderid) === String(folderId)) { found = it; return; }
+        walk(it.contents || []);
+      }
+    }
+  };
+  walk(root.contents || []);
+  return found;
 }
 
 /**
@@ -81,9 +106,10 @@ export async function resolveCampFolderId(key) {
   return { folderId: chosen.folderId, label: best.name };
 }
 
-// Recursively list image files in a folder: [{ name, fileId, size }]
+// Recursively list image files under a folder node: [{ name, fileId, size }]
 export async function listFolderImages(folderId) {
-  const d = await getJson(`${API}/showpublink?code=${PCLOUD_CODE}&folderid=${folderId}`);
+  const node = await findFolderNode(folderId);
+  if (!node) return [];
   const files = [];
   const walk = (items) => {
     for (const it of (items || [])) {
@@ -91,8 +117,18 @@ export async function listFolderImages(folderId) {
       else if (IMAGE_EXT.test(it.name)) files.push({ name: it.name, fileId: String(it.fileid), size: it.size || 0 });
     }
   };
-  walk(d.metadata.contents || []);
+  walk(node.contents || []);
   return files;
+}
+
+// Web-sized image (fits within `size`) as a Buffer — for storing in Blob.
+// Uses pCloud's thumbnail endpoint so we never download 40MB originals.
+export async function webImage(fileId, size = '1280x1280') {
+  const r = await fetch(`${API}/getpubthumb?code=${PCLOUD_CODE}&fileid=${fileId}&size=${size}&crop=0`);
+  if (!r.ok) throw new Error(`pCloud thumb HTTP ${r.status}`);
+  const buf = Buffer.from(await r.arrayBuffer());
+  if (buf.length < 1000) throw new Error('pCloud thumb too small / failed');
+  return buf;
 }
 
 // Small thumbnail as base64 (for the vision pass). Returns { data, mediaType } or null.
