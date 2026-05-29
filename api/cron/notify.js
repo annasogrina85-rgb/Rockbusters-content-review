@@ -1,5 +1,6 @@
 import { kv } from '@vercel/kv';
 import nodemailer from 'nodemailer';
+import { runRegen } from '../_lib/regen.js';
 
 /**
  * Daily notify endpoint — runs on Vercel Cron (see vercel.json `crons`).
@@ -210,6 +211,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // 1. Process comment-driven regenerations first, so the email reflects fresh content.
+    //    Never let a regen failure block the email — it's best-effort.
+    let regen = null;
+    try {
+      regen = await runRegen({ limit: 6 });
+    } catch (e) {
+      regen = { ran: false, error: e.message };
+    }
+
     const rawNames = await kv.smembers('drafts:list');
     const names = (rawNames || []).map(normalizeName).filter(Boolean);
 
@@ -263,6 +273,7 @@ export default async function handler(req, res) {
       mode: isMorning ? 'morning' : 'afternoon',
       drafts: names.length,
       pending: allPending.length,
+      regen,
       accepted: info.accepted,
       rejected: info.rejected,
       messageId: info.messageId,
