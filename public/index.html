@@ -1726,7 +1726,54 @@ function renderPlan() {
     ${planSection('Posts', '📝', postsRows)}
     ${planSection('Highlights', '⭐', highlightRows)}
     ${planSection('Info needed', '📋', infoRows)}
+    ${recapSection()}
   `;
+}
+
+function recapSection() {
+  return `
+    <div style="margin:28px 0 8px">
+      <h3 style="font-size:13px;font-weight:700;letter-spacing:0.05em;color:#ff6b00;text-transform:uppercase">📸 Camp recap</h3>
+    </div>
+    <div style="background:#161616;border:1px solid #242424;border-radius:8px;padding:16px">
+      <p style="font-size:12px;color:#888;margin:0 0 12px">
+        Build a "week recap" from a camp's participant folder in Drive
+        (05_UGC_Community/Camps). Photos + their words must already be uploaded.
+      </p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="recap-camp" type="text" placeholder="Camp folder name, e.g. Rodellar 2026-05"
+          style="flex:1;min-width:240px;background:#0e0e0e;border:1px solid #2a2a2a;color:#e0e0e0;padding:8px 10px;border-radius:6px;font-size:13px">
+        <button id="recap-btn" onclick="buildRecapNow()"
+          style="background:#ff6b00;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">Build recap</button>
+      </div>
+      <div id="recap-status" style="font-size:12px;color:#888;margin-top:10px"></div>
+    </div>`;
+}
+
+async function buildRecapNow() {
+  const camp = document.getElementById('recap-camp').value.trim();
+  const status = document.getElementById('recap-status');
+  const btn = document.getElementById('recap-btn');
+  if (!camp) { status.textContent = 'Enter a camp folder name first.'; return; }
+  btn.disabled = true; btn.textContent = 'Building…';
+  status.style.color = '#888';
+  status.textContent = 'Reading Drive, picking photos, writing recap… (up to a minute)';
+  try {
+    const res = await fetch(`/api/recap?camp=${encodeURIComponent(camp)}`);
+    const d = await res.json();
+    if (d.ok && d.built?.[0]?.name) {
+      status.style.color = '#88cc88';
+      status.innerHTML = `✓ Built "<strong>${d.built[0].name}</strong>" (${d.built[0].photos} photos). Open the DRAFTS tab to review.`;
+    } else {
+      status.style.color = '#ff6b6b';
+      status.textContent = '⚠ ' + (d.built?.[0]?.error || d.error || 'Failed — check the camp folder name and that it has photos.');
+    }
+  } catch (e) {
+    status.style.color = '#ff6b6b';
+    status.textContent = '⚠ ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Build recap';
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
