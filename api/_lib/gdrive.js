@@ -10,14 +10,38 @@
  * so we never decode HEIC or resize ourselves.
  */
 
+import crypto from 'crypto';
+
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const API = 'https://www.googleapis.com/drive/v3';
+const SCOPE = 'https://www.googleapis.com/auth/drive.readonly';
 
 let _accessToken = null;
 let _tokenExp = 0;
 
-export async function getAccessToken() {
-  if (_accessToken && Date.now() < _tokenExp - 60000) return _accessToken;
+function b64url(buf) {
+  return Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+// Service-account JWT-bearer flow (preferred — own Google project quota).
+async function tokenFromServiceAccount(sa) {
+  const now = Math.floor(Date.now() / 1000);
+  const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const claims = b64url(JSON.stringify({
+    iss: sa.client_email, scope: SCOPE, aud: sa.token_uri || TOKEN_URL, iat: now, exp: now + 3600,
+  }));
+  const signingInput = `${header}.${claims}`;
+  const signature = b64url(crypto.createSign('RSA-SHA256').update(signingInput).sign(sa.private_key));
+  const assertion = `${signingInput}.${signature}`;
+  const body = new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion });
+  const r = await fetch(sa.token_uri || TOKEN_URL, { method: 'POST', body });
+  const d = await r.json();
+  if (!d.access_token) throw new Error('SA token failed: ' + JSON.stringify(d));
+  return d;
+}
+
+// OAuth refresh-token flow (fallback — reuses rclone's client; shared quota).
+async function tokenFromRefresh() {
   const body = new URLSearchParams({
     client_id: process.env.GOOGLE_OAUTH_CLIENT_ID,
     client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
@@ -27,6 +51,17 @@ export async function getAccessToken() {
   const r = await fetch(TOKEN_URL, { method: 'POST', body });
   const d = await r.json();
   if (!d.access_token) throw new Error('Drive token refresh failed: ' + JSON.stringify(d));
+  return d;
+}
+
+export async function getAccessToken() {
+  if (_accessToken && Date.now() < _tokenExp - 60000) return _accessToken;
+  let d;
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+    d = await tokenFromServiceAccount(JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON));
+  } else {
+    d = await tokenFromRefresh();
+  }
   _accessToken = d.access_token;
   _tokenExp = Date.now() + (d.expires_in || 3600) * 1000;
   return _accessToken;
