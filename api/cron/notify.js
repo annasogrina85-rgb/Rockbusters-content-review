@@ -1,6 +1,7 @@
 import { kv } from '@vercel/kv';
 import nodemailer from 'nodemailer';
 import { runRegen } from '../_lib/regen.js';
+import { findReadyCamps, buildRecap } from '../_lib/recap-build.js';
 
 /**
  * Daily notify endpoint — runs on Vercel Cron (see vercel.json `crons`).
@@ -220,6 +221,19 @@ export default async function handler(req, res) {
       regen = { ran: false, error: e.message };
     }
 
+    // Auto-build recaps for any camp folders marked READY (best-effort).
+    let recaps = null;
+    try {
+      const camps = await findReadyCamps();
+      recaps = [];
+      for (const c of camps) {
+        try { recaps.push({ camp: c, ...(await buildRecap(c)) }); }
+        catch (e) { recaps.push({ camp: c, error: e.message }); }
+      }
+    } catch (e) {
+      recaps = { error: e.message };
+    }
+
     const rawNames = await kv.smembers('drafts:list');
     const names = (rawNames || []).map(normalizeName).filter(Boolean);
 
@@ -274,6 +288,7 @@ export default async function handler(req, res) {
       drafts: names.length,
       pending: allPending.length,
       regen,
+      recaps,
       accepted: info.accepted,
       rejected: info.rejected,
       messageId: info.messageId,
