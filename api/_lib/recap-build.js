@@ -2,6 +2,7 @@ import { kv } from '@vercel/kv';
 import Anthropic from '@anthropic-ai/sdk';
 import { put } from '@vercel/blob';
 import { findFolderByName, listChildren, downloadText, imageJpeg, isImage } from './gdrive.js';
+import { TONE } from './tone.js';
 
 /**
  * Cloud "week recap" generator. Reads a camp folder from Drive
@@ -16,10 +17,6 @@ async function getCampsFolderId() {
   if (!id) throw new Error('Camps folder not visible — is it shared with the service account?');
   return id;
 }
-
-const TONE = `You are the content writer for Rockbusters Climbing (Jany, Rodellar). Write like a real climber, not marketing: short sentences, specific details, honest about fear before the breakthrough, understated. Use "we". Never use "embark on a journey", "transform", "incredible", "amazing", "are you ready", exclamation marks (unless quoting), emojis, or more than 12 hashtags.
-
-STRICT participant rule: use ONLY the participants' own words provided. Do not invent quotes, feelings, achievements, grades, or events they did not state. If material is thin, write less.`;
 
 function slugify(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
@@ -60,7 +57,7 @@ Participants' own words (use ONLY these — invent nothing):
 ${quotes || '(no quotes provided — keep text minimal and general about the week, no invented details)'}
 
 Return JSON for a ${nSlides}-slide carousel:
-{ "type":"carousel", "caption":"caption with up to 12 hashtags",
+{ "type":"carousel", "caption":"caption with 3-5 hashtags",
   "slides":[ { "label":"short label", "headline":"optional 2-4 words", "body":"1-3 lines" } ] }
 ${nSlides} slides total. Return only valid JSON.`;
   const resp = await client.messages.create({

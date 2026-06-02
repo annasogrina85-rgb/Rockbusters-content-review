@@ -2,6 +2,7 @@ import { kv } from '@vercel/kv';
 import Anthropic from '@anthropic-ai/sdk';
 import { put } from '@vercel/blob';
 import { resolveCampFolderId, listFolderImages, webImage, pickBestPhotoWithVision } from './pcloud.js';
+import { TONE } from './tone.js';
 
 /**
  * Comment-driven regeneration — shared logic used by the cron endpoints.
@@ -15,15 +16,6 @@ import { resolveCampFolderId, listFolderImages, webImage, pickBestPhotoWithVisio
  */
 
 const MODEL = 'claude-opus-4-7';
-
-const TONE = `You are the content writer for Rockbusters Climbing — a climbing camp company run by Jany (Jan Novotny) in Rodellar, Spain. Coaches: Klemen Becan, Petra Pivonkova, Laszlo Juhasz, Arturo Aparicio.
-
-Brand voice — write like a real climber, not a marketing team:
-- Short sentences. Fragments are fine.
-- Specific over generic — name the route, the grade, the moment, the person.
-- Honest about fear and failure before the breakthrough. Understated emotion.
-- Use "we", never "our community"/"our clients".
-- Never use: "embark on a journey", "transform", "incredible", "amazing", "are you ready", exclamation marks (unless quoting someone), emojis, more than 12 hashtags, corporate phrases.`;
 
 // Text fields we allow regen to overwrite (everything else — photos, video, meta — is preserved)
 const TOP_TEXT_KEYS = ['caption', 'quote', 'attribution', 'context', 'title', 'subtitle', 'eyebrow', 'headline'];

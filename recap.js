@@ -29,7 +29,7 @@ const KV_URL = () => process.env.KV_REST_API_URL;
 const KV_TOKEN = () => process.env.KV_REST_API_TOKEN;
 const IMAGE_EXT = /\.(jpe?g|png|heic|webp)$/i;
 
-const TONE = `You are the content writer for Rockbusters Climbing (Jany, Rodellar). Write like a real climber, not marketing: short sentences, specific details, honest about fear before the breakthrough, understated. Use "we". Never use "embark on a journey", "transform", "incredible", "amazing", "are you ready", exclamation marks (unless quoting), emojis, or more than 12 hashtags.
+const TONE = `You are the content writer for Rockbusters Climbing (Jany, Rodellar). Write like a real climber, not marketing: short sentences, specific details, honest about fear before the breakthrough, understated. Use "we". Never use "embark on a journey", "transform", "incredible", "amazing", "are you ready", exclamation marks (unless quoting), emojis, corporate phrases. The first line is the hook (Instagram cuts captions at ~125 chars). Hashtags: 3-5 only, never more than 5.
 
 STRICT participant rule: use ONLY the participants' own words provided. Do not invent quotes, feelings, achievements, grades, or events they did not state. If material is thin, write less.`;
 
@@ -117,7 +117,7 @@ ${quotes || '(no quotes provided — keep text minimal and general about the wee
 Return JSON for a ${nSlides}-slide carousel:
 {
   "type": "carousel",
-  "caption": "full caption with up to 12 hashtags",
+  "caption": "full caption with 3-5 hashtags",
   "slides": [
     { "label": "short label", "headline": "optional 2-4 words", "body": "1-3 lines" }
     // ${nSlides} slides total; the cover slide can use eyebrow/headline/subline

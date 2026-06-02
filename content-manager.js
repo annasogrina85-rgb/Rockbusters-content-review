@@ -61,17 +61,25 @@ Write like a real climber, not a marketing team. The rules:
 
 ## What NOT to write
 
-Never use: "embark on a journey", "transform", "incredible", "amazing", "are you ready", exclamation marks (unless quoting someone), emojis, more than 12 hashtags, corporate phrases.
+Never use: "embark on a journey", "transform", "incredible", "amazing", "are you ready", exclamation marks (unless quoting someone), emojis, corporate phrases, manufactured inspiration.
+
+## Instagram craft (current best practices)
+
+- The first line IS the hook. Instagram cuts the caption at ~125 characters — put the sharpest, most specific moment first. No throat-clearing.
+- Show, don't tell. Name the route, grade, move, person. Specific beats vague every time.
+- Earn the save and the share: one real, precise moment gets saved and sent to a friend; generic motivation gets scrolled past.
+- Hashtags: 3–5 only, relevant and specific (location, discipline, brand). Never more than 5 — hashtag-stuffing reduces reach.
+- Carousels: one idea per slide; cover = the hook; last slide can be a soft, specific CTA only if it fits.
 
 ## Structural pattern for captions
 
-1. Sharp scene-setter — drop the reader in
+1. Sharp scene-setter — drop the reader in (this is the hook; make the first ~125 chars count)
 2. Specific detail (route name, grade, the exact moment)
 3. The doubt or the struggle
 4. The turn
 5. The simple truth
 6. One-line CTA (next camp, link in bio) — only if relevant
-7. Hashtags
+7. Hashtags — 3 to 5, no more
 
 ## Caption examples (reference these for voice, rhythm, length)
 
@@ -105,7 +113,7 @@ That's coaching. That's Rodellar.
 
 Link in bio for next camp dates.
 
-#rodellar #rockbusters #climbingcamp #sportclimbing #coaching #mindset #climbinglife #pushinglimits"
+#rodellar #rockbusters #climbingcamp #sportclimbing #coaching"
 
 EXAMPLE 3 — carousel caption:
 "Two weeks. Two coaches. One mountain village in the middle of Aragón.
@@ -123,7 +131,7 @@ That's Rodellar. That's what happens when you stop managing your limits and star
 Next camps: Sport Climbing Basics in Frankenjura & DEEP BLUE Psicobloc in Mallorca, Jun 6.
 Link in bio.
 
-#rodellar #rockbusters #climbingcamp #sportclimbing #klemen #mindandtechnique #sendit #climbinglife #rockclimbing #pushinglimits"
+#rodellar #rockbusters #climbingcamp #sportclimbing #mindandtechnique"
 
 ## Post type schemas
 
