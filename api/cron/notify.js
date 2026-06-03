@@ -2,6 +2,7 @@ import { kv } from '@vercel/kv';
 import nodemailer from 'nodemailer';
 import { runRegen } from '../_lib/regen.js';
 import { findReadyCamps, buildRecap } from '../_lib/recap-build.js';
+import { reviewPlan } from '../_lib/plan-review.js';
 
 /**
  * Daily notify endpoint — runs on Vercel Cron (see vercel.json `crons`).
@@ -143,7 +144,7 @@ function buildStructuredTodos(plan, kvDrafts) {
   return { todos, postMap };
 }
 
-function buildEmail(plan, kvDrafts, { isReminder = false } = {}) {
+function buildEmail(plan, kvDrafts, { isReminder = false, planReview = [] } = {}) {
   const reviewPosts = (plan.posts || []).filter(p => {
     const kvm = kvDrafts[p.name];
     return (kvm?.status === 'pending_review' || kvm?.status === 'pending' || p.status === 'pending_review') && !kvm?.status?.includes('approved');
@@ -174,6 +175,9 @@ function buildEmail(plan, kvDrafts, { isReminder = false } = {}) {
       <span style="color:#888;font-size:13px;margin-left:12px">Daily Brief · ${todayStr()}</span>
     </div>
     ${reminderBanner}
+    ${section('🧭 Plan review', planReview.map(f =>
+      f.level === 'high' ? `<strong style="color:#cc3300">${f.text}</strong>` : f.text
+    ))}
     ${section('🔍 Needs your review', [
       ...reviewPosts.map(p => `<a href="${REVIEW_URL}" style="color:#ff6b00"><strong>${p.name.replace(/_/g, ' ')}</strong></a> [${p.type}]${p.blocker ? ` — <em>${p.blocker}</em>` : ''}`),
       reviewPosts.length ? `<a href="${REVIEW_URL}" style="color:#ff6b00;font-weight:bold">→ Open review app</a>` : ''
@@ -255,6 +259,7 @@ export default async function handler(req, res) {
 
     const todo = buildTodo(plan, kvDrafts);
     const { todos, postMap } = buildStructuredTodos(plan, kvDrafts);
+    const planReview = reviewPlan(plan, kvDrafts);
 
     await kv.set('todo:latest', JSON.stringify({ content: todo, generated_at: new Date().toISOString() }));
     await kv.set('todos:structured', JSON.stringify({ todos, postMap, generated_at: new Date().toISOString() }));
@@ -264,7 +269,7 @@ export default async function handler(req, res) {
     const allPending = Object.values(kvDrafts).filter(m => m?.status === 'pending' || m?.status === 'pending_review');
     const isReminder = allPending.length > 3;
 
-    const html = buildEmail(plan, kvDrafts, { isReminder });
+    const html = buildEmail(plan, kvDrafts, { isReminder, planReview });
     const prefix = isMorning ? '🏔' : '🔄';
     const timeLabel = isMorning ? 'Morning brief' : 'Afternoon update';
     const subject = isReminder
@@ -287,6 +292,7 @@ export default async function handler(req, res) {
       mode: isMorning ? 'morning' : 'afternoon',
       drafts: names.length,
       pending: allPending.length,
+      planReview,
       regen,
       recaps,
       accepted: info.accepted,
