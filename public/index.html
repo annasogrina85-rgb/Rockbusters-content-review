@@ -1722,12 +1722,32 @@ function renderPlan() {
       <h2 style="font-size:16px;font-weight:700;color:#f0f0f0">Content Plan</h2>
       <p style="font-size:12px;color:#555;margin-top:4px">Add comments below — the agent picks them up in the morning and adjusts content accordingly.</p>
     </div>
+    ${planReviewBlock()}
     ${planSection('Upcoming camps', '📅', campsRows)}
     ${planSection('Posts', '📝', postsRows)}
     ${planSection('Highlights', '⭐', highlightRows)}
     ${planSection('Info needed', '📋', infoRows)}
     ${recapSection()}
   `;
+}
+
+function planReviewBlock() {
+  const findings = (planData && planData._review) || [];
+  if (!findings.length) {
+    return `<div style="background:#13201a;border:1px solid #1f3a2a;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#88cc88">✓ Plan review: nothing urgent — every upcoming camp has an approved announcement.</div>`;
+  }
+  const rows = findings.map(f => {
+    const high = f.level === 'high';
+    return `<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid #242424">
+      <div style="font-size:13px;color:${high ? '#ff7a59' : '#cfcfcf'};${high ? 'font-weight:600' : ''}">${f.text}</div>
+    </div>`;
+  }).join('');
+  const hasHigh = findings.some(f => f.level === 'high');
+  return `
+    <div style="background:#1a1411;border:1px solid ${hasHigh ? '#5a2a1a' : '#2a2a2a'};border-radius:8px;padding:14px 16px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.05em;color:#ff6b00;text-transform:uppercase;margin-bottom:4px">🧭 Plan review</div>
+      ${rows}
+    </div>`;
 }
 
 function recapSection() {
