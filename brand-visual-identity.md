@@ -1,53 +1,54 @@
 # Rockbusters — Visual Identity
 
 Extracted from the official 2026 brand assets (ambassador posters + Eurotrip
-Instagram templates) sent by the designer. This complements the written brand
-**voice** (`api/_lib/tone.js`). Use it for the new website, for content
-templates, and to keep generated posts on-brand visually.
+Instagram carousels). Colors below are **sampled directly from the artwork**
+(exact). This complements the written brand **voice** (`api/_lib/tone.js`).
 
-> Hex values below are read from the artwork and are **approximate** — confirm
-> exact values from the logo / Canva source files before using in production.
+## Color palette (sampled — exact)
+| Role | Hex | Notes |
+|---|---|---|
+| Brand red | `#C31319` | the signature — pills, accents, shards, accent words, logo |
+| Deep red | `#9C181A` | darker red for halftone dots / shadows |
+| Ink (headline dark) | `#3C3C32` | warm dark olive-charcoal — NOT pure black |
+| Paper (background) | `#F1F1F1` | neutral light grey, the house background |
+| White | `#FFFFFF` | headline text over photos |
 
 ## Logo
-- **Roundel mark**: red circle with a stylized aperture/lock "R" inside. Used as a compact badge (corner of posts).
-- **Wordmark**: `ROCKBUSTERS` in a heavy, slightly condensed sans — all caps, tight. Often white on red, or red/black on light.
-- Always give the mark clear space; never stretch or recolor outside the palette.
-
-## Color palette
-| Role | Color | Approx hex |
-|---|---|---|
-| Primary red (brand) | scarlet/crimson | `#C31319` |
-| Deep red (shadows/gradients) | darker crimson | `#9C181A` |
-| Ink | near-black charcoal | `#1A1A1A` |
-| Light background | warm off-white | `#F2F0EE` |
-| White | pure white (text on photo) | `#FFFFFF` |
-
-Red is the signature — used for accent words, pills/buttons, angular shapes, and badges. Backgrounds are light off-white or full-bleed photo.
+- **Roundel mark**: solid red circle with a dark (near-black) comet/swoosh inside. Used as a compact badge, usually upper area of the post.
+- **Wordmark**: `ROCKBUSTERS` heavy all-caps.
+- ⛔ Source file still needed — see "What's still needed" below. Templates currently use a red-circle "R" placeholder.
 
 ## Typography
-- Headlines: **heavy bold condensed sans, ALL CAPS**, tight leading.
-- Emphasis by **mixing colors within a headline** — some words black, key words red.
-- White headline text over photos uses a soft drop shadow for legibility.
-- Body/labels: clean sans, smaller, often uppercase for labels.
-- Tone of type: punchy, declarative, broken into short lines.
-  e.g. "EUROPE. 8 WEEKS. ONE GIANT CLIMBING ROAD TRIP."
+- Headlines: **heavy bold grotesque, ALL CAPS**, tight leading, broken into short stacked lines.
+- **Two-color headlines**: most words in ink `#3C3C32`, key words in brand red `#C31319` (e.g. "BUILD **YOUR OWN** EUROTRIP", "WIN A **FREE WEEK**").
+- Over photos: headline is **white** with a soft shadow.
+- Labels/captions: clean bold sans, often the ink color, smaller.
+- Exact font: TBD — need the name/file (placeholder: Anton + Archivo).
+
+## Layout system (two modes)
+**Mode A — light card:** `#F1F1F1` background covered in halftone dots; the photo sits in a **rounded-corner card**; the headline (ink + red words) sits above or below the card; a short caption + a thick **→ arrow** in a corner. Location posts add the place name + a **country flag emoji** (RODELLAR 🇪🇸, CEÜSE 🇫🇷, OLTRE FINALE 🇮🇹, FRANKENJURA 🇩🇪).
+
+**Mode B — full-bleed photo:** photo fills the frame; **white** headline + location/flag over it; red pill CTA. (This is what the current carousel template renders.)
 
 ## Graphic language
-- **Angular red shards** — rotated rounded rectangles / parallelograms scattered as dynamic accents (motion, energy).
-- **Halftone dot texture** — red + grey dot field bleeding from corners/edges over the light background.
-- **Rounded red "pill" elements** — CTA buttons ("swipe →") and stat badges.
-- **Layout pattern** — photo block (bottom or half) + headline band; strong diagonal energy; generous bold type.
+- **Halftone dot field** — red `#C31319` + deep-red `#9C181A` dots over the paper background, denser at corners/edges.
+- **Angular red shards** — rotated rounded rectangles as dynamic accents.
+- **Rounded red "pill"** — CTA buttons ("BOOK NOW →", "swipe →", "Send this to your climbing partner →") and stat badges (alternating solid-red / red-outline, e.g. "1 WEEK · 1 ENTRY").
+- **Thick arrow →** — repeated swipe/CTA cue (white on photo, ink on light).
 
 ## Photography
-- Dramatic, high-contrast climbing **action** — climber on rock, real moments, often shot from above/dramatic angle.
-- Full-bleed, dark-toned; landscapes (road trips, mountains) used for travel/road-trip context.
-- This matches the agent's photo selection ("people / action / sharp") — keep preferring action over static landscapes.
+- Dramatic, high-contrast climbing **action** from above; real moments. B&W treatment used on some promo slides.
+- Matches the agent's photo selection ("people / action / sharp") — keep preferring action over empty landscapes.
 
 ## Taglines / verbal-visual hooks
-- "Join the Crew. Climb the World."
-- "CLIMB. HARD. EAT. SLEEP. CLIMB. AGAIN."
+- "Join the Crew. Climb the World." · "CLIMB. HARD. EAT. SLEEP. CLIMB. AGAIN."
 - Short, stacked, all-caps, period-separated phrasing.
 
+## What's still needed (from the designer)
+1. **Logo file** — the roundel + wordmark as **SVG** (and a transparent **PNG**). Drop in `00_Brand/Logos/`.
+2. **Headline font** — the .otf/.ttf file or the exact font name (visible in Canva). Drop in `00_Brand/Fonts/`.
+Everything else (colors, layout system, graphic language) is captured above.
+
 ## Source assets
-See `00_Brand/visual-references/` in Drive for saved examples and
-`brand-identity-references.md` for the full list of Canva + Drive links.
+Reference originals saved in Drive `00_Brand/visual-references/rb-2026-examples/`.
+Full link list in `brand-identity-references.md`.
