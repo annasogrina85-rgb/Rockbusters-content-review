@@ -16,8 +16,8 @@ templates, and to keep generated posts on-brand visually.
 ## Color palette
 | Role | Color | Approx hex |
 |---|---|---|
-| Primary red (brand) | scarlet/crimson | `#E1231A` |
-| Deep red (shadows/gradients) | darker crimson | `#A8121A` |
+| Primary red (brand) | scarlet/crimson | `#C31319` |
+| Deep red (shadows/gradients) | darker crimson | `#9C181A` |
 | Ink | near-black charcoal | `#1A1A1A` |
 | Light background | warm off-white | `#F2F0EE` |
 | White | pure white (text on photo) | `#FFFFFF` |
