@@ -261,6 +261,7 @@ export default async function handler(req, res) {
     const { todos, postMap } = buildStructuredTodos(plan, kvDrafts);
     const planReview = reviewPlan(plan, kvDrafts);
 
+    // todo:latest is always refreshed (app reads it); only the EMAIL is gated.
     await kv.set('todo:latest', JSON.stringify({ content: todo, generated_at: new Date().toISOString() }));
     await kv.set('todos:structured', JSON.stringify({ todos, postMap, generated_at: new Date().toISOString() }));
 
@@ -268,6 +269,31 @@ export default async function handler(req, res) {
     const isMorning = hour < 12;
     const allPending = Object.values(kvDrafts).filter(m => m?.status === 'pending' || m?.status === 'pending_review');
     const isReminder = allPending.length > 3;
+
+    // ── Only email when something actionable changed since the last email ──
+    const signature = JSON.stringify({
+      drafts: names.slice().sort().map(n => `${n}:${kvDrafts[n]?.status || '?'}:${(kvDrafts[n]?.comments || []).length}`),
+      review: planReview.map(f => f.text),
+      planUpdated: plan.updated || null,
+    });
+    let last = await kv.get('notify:last-signature');
+    if (last && typeof last !== 'string') last = JSON.stringify(last);
+    const force = req.query?.force === '1';
+    const changed = force || last !== signature;
+
+    if (!changed) {
+      return res.status(200).json({
+        ok: true,
+        mode: isMorning ? 'morning' : 'afternoon',
+        emailed: false,
+        reason: 'no changes since last email',
+        drafts: names.length,
+        pending: allPending.length,
+        planReview,
+        regen,
+        recaps,
+      });
+    }
 
     const html = buildEmail(plan, kvDrafts, { isReminder, planReview });
     const prefix = isMorning ? '🏔' : '🔄';
@@ -287,9 +313,12 @@ export default async function handler(req, res) {
       html,
     });
 
+    await kv.set('notify:last-signature', signature);
+
     return res.status(200).json({
       ok: true,
       mode: isMorning ? 'morning' : 'afternoon',
+      emailed: true,
       drafts: names.length,
       pending: allPending.length,
       planReview,
