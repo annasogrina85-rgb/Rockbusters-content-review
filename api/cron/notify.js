@@ -278,15 +278,23 @@ export default async function handler(req, res) {
     });
     let last = await kv.get('notify:last-signature');
     if (last && typeof last !== 'string') last = JSON.stringify(last);
-    const force = req.query?.force === '1';
-    const changed = force || last !== signature;
+    let lastEmailDate = await kv.get('notify:last-email-date');
+    if (lastEmailDate && typeof lastEmailDate !== 'string') lastEmailDate = String(lastEmailDate);
 
-    if (!changed) {
+    const todayUTC = new Date().toISOString().slice(0, 10);
+    const force = req.query?.force === '1';
+    const changed = last !== signature;
+    // Morning brief is a once-a-day heartbeat (always arrives, but only once);
+    // afternoon/extra runs email only when something actually changed.
+    const morningHeartbeat = isMorning && lastEmailDate !== todayUTC;
+    const send = force || changed || morningHeartbeat;
+
+    if (!send) {
       return res.status(200).json({
         ok: true,
         mode: isMorning ? 'morning' : 'afternoon',
         emailed: false,
-        reason: 'no changes since last email',
+        reason: 'no changes; morning brief already sent today',
         drafts: names.length,
         pending: allPending.length,
         planReview,
@@ -314,6 +322,7 @@ export default async function handler(req, res) {
     });
 
     await kv.set('notify:last-signature', signature);
+    await kv.set('notify:last-email-date', todayUTC);
 
     return res.status(200).json({
       ok: true,
