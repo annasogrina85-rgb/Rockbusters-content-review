@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rockbusters · Draft Review</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
       background: #0d0d0d;
       color: #f0f0f0;
       min-height: 100vh;
@@ -70,7 +71,7 @@
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #ff6b00;
+      color: #e30613;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -119,10 +120,10 @@
 
     .todo-item:hover {
       background: #1a1a1a;
-      border-left-color: #ff6b00;
+      border-left-color: #e30613;
     }
 
-    .todo-item.high-priority { border-left-color: #ff6b00; }
+    .todo-item.high-priority { border-left-color: #e30613; }
     .todo-item.medium-priority { border-left-color: #6699ff; }
     .todo-item.low-priority { border-left-color: #555; }
 
@@ -277,7 +278,7 @@
       position: relative;
     }
 
-    .slide-thumb.active { border-color: #ff6b00; }
+    .slide-thumb.active { border-color: #e30613; }
 
     .slide-thumb img {
       width: 100%;
@@ -308,30 +309,28 @@
       background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
     }
 
-    .slide-eyebrow {
+    .slide-eyebrow, .slide-label {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
       font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
+      font-weight: 800;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
-      margin-bottom: 4px;
+      color: #fff;
+      background: #e30613;
+      padding: 4px 9px;
+      border-radius: 999px;
+      margin-bottom: 8px;
     }
 
     .slide-headline {
-      font-size: 22px;
-      font-weight: 800;
-      line-height: 1.15;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 0.98;
       letter-spacing: -0.02em;
-      white-space: pre-line;
-    }
-
-    .slide-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: #ff6b00;
-      margin-bottom: 4px;
+      white-space: pre-line;
     }
 
     .slide-body {
@@ -354,12 +353,14 @@
     }
 
     .quote-text {
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1.25;
-      letter-spacing: -0.01em;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
       white-space: pre-line;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .quote-attribution {
@@ -652,7 +653,7 @@
       transition: all 0.15s;
     }
     .refresh-btn:hover { border-color: #444; color: #aaa; }
-    .refresh-btn.spinning { animation: spin 0.7s linear infinite; color: #ff6b00; border-color: #ff6b00; }
+    .refresh-btn.spinning { animation: spin 0.7s linear infinite; color: #e30613; border-color: #e30613; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Photo upload ── */
@@ -693,7 +694,7 @@
       position: relative;
       overflow: hidden;
     }
-    .upload-drop:hover, .upload-drop.dragover { border-color: #ff6b00; background: #1a1200; }
+    .upload-drop:hover, .upload-drop.dragover { border-color: #e30613; background: #1a1200; }
     .upload-drop input[type=file] {
       position: absolute; inset: 0; opacity: 0; cursor: pointer;
     }
@@ -724,7 +725,7 @@
       font-size: 11px; color: #555;
       background: #1a1a1a; border-radius: 5px; padding: 5px 10px;
     }
-    .upload-slide-note strong { color: #ff6b00; }
+    .upload-slide-note strong { color: #e30613; }
 
     .btn-upload {
       background: #1a1a2a; border-color: #2a2a4a; color: #8888cc;
@@ -740,7 +741,7 @@
   <div style="display:flex;align-items:center;gap:24px;">
     <h1>ROCKBUSTERS · <span>Content OS</span></h1>
     <nav style="display:flex;gap:2px;">
-      <button id="tabDrafts" onclick="switchTab('drafts')" style="background:#ff6b00;color:#fff;border:none;padding:6px 14px;border-radius:6px 6px 0 0;font-size:12px;font-weight:600;letter-spacing:0.05em;cursor:pointer;">DRAFTS</button>
+      <button id="tabDrafts" onclick="switchTab('drafts')" style="background:#e30613;color:#fff;border:none;padding:6px 14px;border-radius:6px 6px 0 0;font-size:12px;font-weight:600;letter-spacing:0.05em;cursor:pointer;">DRAFTS</button>
       <button id="tabPlan" onclick="switchTab('plan')" style="background:#1a1a1a;color:#666;border:1px solid #2a2a2a;border-bottom:none;padding:6px 14px;border-radius:6px 6px 0 0;font-size:12px;font-weight:600;letter-spacing:0.05em;cursor:pointer;">PLAN</button>
     </nav>
   </div>
@@ -886,7 +887,7 @@ function scrollToPost(postName) {
   const card = document.getElementById(`card-${postName}`);
   if (card) {
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    card.style.boxShadow = '0 0 0 2px #ff6b00';
+    card.style.boxShadow = '0 0 0 2px #e30613';
     setTimeout(() => { card.style.boxShadow = ''; }, 2000);
   }
 }
@@ -1577,9 +1578,9 @@ function switchTab(tab) {
   document.getElementById('viewDrafts').style.display = tab === 'drafts' ? 'flex' : 'none';
   document.getElementById('viewPlan').style.display   = tab === 'plan'   ? 'flex' : 'none';
 
-  document.getElementById('tabDrafts').style.background = tab === 'drafts' ? '#ff6b00' : '#1a1a1a';
+  document.getElementById('tabDrafts').style.background = tab === 'drafts' ? '#e30613' : '#1a1a1a';
   document.getElementById('tabDrafts').style.color      = tab === 'drafts' ? '#fff'    : '#666';
-  document.getElementById('tabPlan').style.background   = tab === 'plan'   ? '#ff6b00' : '#1a1a1a';
+  document.getElementById('tabPlan').style.background   = tab === 'plan'   ? '#e30613' : '#1a1a1a';
   document.getElementById('tabPlan').style.color        = tab === 'plan'   ? '#fff'    : '#666';
 
   if (tab === 'plan') loadPlan();
@@ -1606,8 +1607,8 @@ function statusBadge(status) {
     needs_revision: ['💬 Needs revision', '#3a3a1a', '#ccaa44'],
     pending_review: ['🔍 Pending review', '#1a2a3a', '#6699ff'],
     pending: ['⏳ Pending', '#222', '#555'],
-    blocked: ['🔒 Blocked', '#2a1a1a', '#ff6b00'],
-    blocked_needs_context: ['⚠️ Blocked', '#2a1a1a', '#ff6b00'],
+    blocked: ['🔒 Blocked', '#2a1a1a', '#e30613'],
+    blocked_needs_context: ['⚠️ Blocked', '#2a1a1a', '#e30613'],
     needs_rethink: ['🔁 Needs rethink', '#2a1a2a', '#aa44cc'],
   };
   const [label, bg, color] = map[status] || ['⏳ ' + status, '#222', '#555'];
@@ -1618,7 +1619,7 @@ function planSection(title, emoji, items) {
   if (!items.length) return '';
   return `
     <div style="margin-bottom:32px">
-      <h3 style="color:#ff6b00;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:16px">${emoji} ${title}</h3>
+      <h3 style="color:#e30613;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:16px">${emoji} ${title}</h3>
       ${items.join('')}
     </div>`;
 }
@@ -1631,7 +1632,7 @@ function planItemRow(name, label, status, blocker, type, publishAfter, commentCo
         <div style="flex:1;min-width:200px">
           <div style="font-size:14px;font-weight:600;color:#f0f0f0;margin-bottom:6px">${label}</div>
           ${type ? `<div style="font-size:11px;color:#555;margin-bottom:4px">${type}</div>` : ''}
-          ${blocker ? `<div style="font-size:12px;color:#ff6b00;margin-bottom:4px">⚠️ ${blocker}</div>` : ''}
+          ${blocker ? `<div style="font-size:12px;color:#e30613;margin-bottom:4px">⚠️ ${blocker}</div>` : ''}
           ${publishAfter ? `<div style="font-size:11px;color:#555">Publish after: ${publishAfter}</div>` : ''}
         </div>
         <div style="display:flex;align-items:center;gap:8px">
@@ -1644,7 +1645,7 @@ function planItemRow(name, label, status, blocker, type, publishAfter, commentCo
             style="flex:1;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;padding:8px 12px;color:#f0f0f0;font-size:12px;outline:none"
             onkeydown="if(event.key==='Enter') submitPlanComment('${name}', '${safeId}')">
           <button onclick="submitPlanComment('${name}', '${safeId}')"
-            style="background:#ff6b00;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">
+            style="background:#e30613;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">
             Send
           </button>
         </div>
@@ -1694,7 +1695,7 @@ function renderPlan() {
         ${c._note ? `<div style="font-size:11px;color:#555;margin-top:4px">${c._note}</div>` : ''}
       </div>
       <div style="text-align:right">
-        <div style="font-size:18px;font-weight:700;color:${days < 14 ? '#ff6b00' : '#888'}">${days}</div>
+        <div style="font-size:18px;font-weight:700;color:${days < 14 ? '#e30613' : '#888'}">${days}</div>
         <div style="font-size:10px;color:#555">days</div>
       </div>
     </div>`;
@@ -1745,7 +1746,7 @@ function planReviewBlock() {
   const hasHigh = findings.some(f => f.level === 'high');
   return `
     <div style="background:#1a1411;border:1px solid ${hasHigh ? '#5a2a1a' : '#2a2a2a'};border-radius:8px;padding:14px 16px;margin-bottom:20px">
-      <div style="font-size:13px;font-weight:700;letter-spacing:0.05em;color:#ff6b00;text-transform:uppercase;margin-bottom:4px">🧭 Plan review</div>
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.05em;color:#e30613;text-transform:uppercase;margin-bottom:4px">🧭 Plan review</div>
       ${rows}
     </div>`;
 }
@@ -1753,7 +1754,7 @@ function planReviewBlock() {
 function recapSection() {
   return `
     <div style="margin:28px 0 8px">
-      <h3 style="font-size:13px;font-weight:700;letter-spacing:0.05em;color:#ff6b00;text-transform:uppercase">📸 Camp recap</h3>
+      <h3 style="font-size:13px;font-weight:700;letter-spacing:0.05em;color:#e30613;text-transform:uppercase">📸 Camp recap</h3>
     </div>
     <div style="background:#161616;border:1px solid #242424;border-radius:8px;padding:16px">
       <p style="font-size:12px;color:#888;margin:0 0 12px">
@@ -1764,7 +1765,7 @@ function recapSection() {
         <input id="recap-camp" type="text" placeholder="Camp folder name, e.g. Rodellar 2026-05"
           style="flex:1;min-width:240px;background:#0e0e0e;border:1px solid #2a2a2a;color:#e0e0e0;padding:8px 10px;border-radius:6px;font-size:13px">
         <button id="recap-btn" onclick="buildRecapNow()"
-          style="background:#ff6b00;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">Build recap</button>
+          style="background:#e30613;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">Build recap</button>
       </div>
       <div id="recap-status" style="font-size:12px;color:#888;margin-top:10px"></div>
     </div>`;
