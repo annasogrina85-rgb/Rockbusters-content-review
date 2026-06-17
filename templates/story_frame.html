@@ -1,151 +1,38 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
+<html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="{{brand_dir}}/styles.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    width: 1080px;
-    height: 1920px;
-    overflow: hidden;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: #111;
-  }
-
-  .photo {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  .overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.3) 0%,
-      rgba(0,0,0,0.1) 40%,
-      rgba(0,0,0,0.6) 75%,
-      rgba(0,0,0,0.88) 100%
-    );
-  }
-
-  /* text-only variant (no photo) */
-  body.text-only {
-    background: #151515;
-  }
-  body.text-only .photo { display: none; }
-  body.text-only .overlay { background: none; }
-
-  .top-bar {
-    position: absolute;
-    top: 72px;
-    left: 72px;
-    right: 72px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-  }
-
-  .brand-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #fff;
-    opacity: 0.7;
-  }
-
-  .brand-name {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    color: rgba(255,255,255,0.8);
-    text-transform: uppercase;
-  }
-
-  .content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 80px 80px 120px;
-  }
-
-  /* centred variant */
-  body.centred .content {
-    bottom: auto;
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: center;
-    padding: 0 100px;
-  }
-
-  .eyebrow {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 0.24em;
-    color: rgba(255,255,255,0.55);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-
-  .headline {
-    font-size: 72px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.05;
-    letter-spacing: -0.025em;
-    text-transform: uppercase;
-    margin-bottom: 28px;
-  }
-
-  .body-text {
-    font-size: 34px;
-    font-weight: 400;
-    color: rgba(255,255,255,0.82);
-    line-height: 1.6;
-  }
-
-  .body-text strong {
-    color: #fff;
-    font-weight: 700;
-  }
-
-  .cta {
-    margin-top: 48px;
-    display: inline-block;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    color: #fff;
-    text-transform: uppercase;
-    padding: 20px 48px;
-    border: 2px solid rgba(255,255,255,0.7);
-  }
-
-  .divider {
-    width: 48px;
-    height: 3px;
-    background: rgba(255,255,255,0.6);
-    margin-bottom: 28px;
-  }
-</style>
-</head>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1080px; height:1920px; overflow:hidden; position:relative; background:var(--rb-black);
+         font-family:var(--font-body); }
+  .photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
+  .shade { position:absolute; inset:0; background:linear-gradient(to bottom,
+            rgba(0,0,0,.5) 0%, rgba(0,0,0,.12) 30%, rgba(0,0,0,.5) 66%, rgba(0,0,0,.9) 100%); }
+  .tex { position:absolute; inset:0; background:url("{{brand_dir}}/assets/pattern-white.png"); background-size:cover;
+         opacity:.14; mix-blend-mode:screen; pointer-events:none; }
+  .brand { position:absolute; top:80px; left:60px; display:flex; align-items:center; gap:14px; z-index:5; }
+  .brand img { height:62px; }
+  .brand .wordmark { font-family:var(--font-display); font-weight:var(--fw-black); font-size:28px;
+                     text-transform:uppercase; color:var(--rb-white); }
+  .content { position:absolute; left:64px; right:64px; bottom:140px; z-index:4; }
+  body.centred .content { bottom:auto; top:50%; transform:translateY(-50%); text-align:center; }
+  .eyebrow { display:inline-flex; align-items:center; font-family:var(--font-display); font-weight:var(--fw-extrabold);
+             text-transform:uppercase; letter-spacing:.1em; font-size:18px; color:var(--rb-white);
+             background:var(--rb-red); padding:9px 16px; border-radius:var(--radius-pill); margin-bottom:26px; }
+  .headline { font-family:var(--font-display); font-weight:var(--fw-black); text-transform:uppercase;
+              font-size:78px; line-height:var(--lh-tight); letter-spacing:var(--ls-display); color:var(--rb-white);
+              text-shadow:0 4px 22px rgba(0,0,0,.5); margin-bottom:24px; }
+  .body-text { font-family:var(--font-body); font-weight:var(--fw-medium); font-size:34px; line-height:1.5;
+               color:rgba(255,255,255,.94); text-shadow:0 2px 12px rgba(0,0,0,.55); }
+  .body-text strong { color:var(--rb-red); font-weight:var(--fw-bold); }
+  .cta { margin-top:34px; display:inline-flex; align-items:center; gap:.5em; font-family:var(--font-display);
+         font-weight:var(--fw-bold); text-transform:uppercase; letter-spacing:.05em; font-size:24px;
+         color:var(--rb-white); background:var(--rb-red); padding:17px 40px; border-radius:var(--radius-pill); }
+</style></head>
 <body class="{{body_class}}">
-
   <img class="photo" src="{{photo_path}}" />
-  <div class="overlay"></div>
-
-  <div class="top-bar">
-    <div class="brand-dot"></div>
-    <div class="brand-name">Rockbusters</div>
-  </div>
-
+  <div class="shade"></div>
+  <div class="tex"></div>
+  <div class="brand"><img src="{{brand_dir}}/assets/logo-03.png" alt=""><span class="wordmark">Rockbusters</span></div>
   {{content_block}}
-
-</body>
-</html>
+</body></html>

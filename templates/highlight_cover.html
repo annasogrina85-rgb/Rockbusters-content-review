@@ -1,108 +1,36 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
+<html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="{{brand_dir}}/styles.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    width: 1080px;
-    height: 1920px;
-    overflow: hidden;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: #111;
-  }
-
-  .photo {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-  }
-
-  .overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.05) 0%,
-      rgba(0,0,0,0.0) 35%,
-      rgba(0,0,0,0.55) 70%,
-      rgba(0,0,0,0.92) 100%
-    );
-  }
-
-  /* Bottom label strip */
-  .label-strip {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 72px 80px 90px;
-  }
-
-  .label-eyebrow {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 0.26em;
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .label-title {
-    font-size: 96px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.0;
-    letter-spacing: -0.03em;
-    text-transform: uppercase;
-  }
-
-  .label-sub {
-    margin-top: 20px;
-    font-size: 28px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.6);
-    text-transform: uppercase;
-  }
-
-  /* accent line */
-  .accent {
-    width: 56px;
-    height: 4px;
-    background: #fff;
-    opacity: 0.8;
-    margin-bottom: 28px;
-  }
-
-  /* Instagram circle crop note: 1080x1920 will be cropped to circle
-     so keep important content in the centre 540x540 area */
-  .safe-zone-hint {
-    display: none; /* only for reference */
-    position: absolute;
-    top: 690px;
-    left: 240px;
-    width: 600px;
-    height: 600px;
-    border: 2px dashed rgba(255,0,0,0.3);
-  }
-</style>
-</head>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1080px; height:1920px; overflow:hidden; position:relative; background:var(--rb-black);
+         font-family:var(--font-body); }
+  .photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
+  .shade { position:absolute; inset:0; background:linear-gradient(to bottom,
+            rgba(0,0,0,.55) 0%, rgba(0,0,0,.2) 35%, rgba(0,0,0,.45) 70%, rgba(0,0,0,.8) 100%); }
+  .tex { position:absolute; inset:0; background:url("{{brand_dir}}/assets/pattern-white.png"); background-size:cover;
+         opacity:.14; mix-blend-mode:screen; pointer-events:none; }
+  .badge { position:absolute; top:96px; left:50%; transform:translateX(-50%); height:96px; z-index:5; }
+  .center { position:absolute; left:60px; right:60px; top:50%; transform:translateY(-50%); text-align:center; z-index:4; }
+  .title { font-family:var(--font-display); font-weight:var(--fw-black); text-transform:uppercase;
+           font-size:128px; line-height:var(--lh-tight); letter-spacing:var(--ls-display); color:var(--rb-white);
+           text-shadow:0 4px 26px rgba(0,0,0,.55); }
+  .rule { width:90px; height:9px; background:var(--rb-red); border-radius:var(--radius-sm); margin:30px auto; }
+  .subtitle { font-family:var(--font-display); font-weight:var(--fw-bold); text-transform:uppercase;
+              letter-spacing:.1em; font-size:30px; color:var(--rb-white); }
+  .wordmark { position:absolute; bottom:120px; left:0; right:0; text-align:center; font-family:var(--font-display);
+              font-weight:var(--fw-black); text-transform:uppercase; font-size:30px; letter-spacing:.04em;
+              color:var(--rb-white); opacity:.85; z-index:4; }
+</style></head>
 <body>
-
   <img class="photo" src="{{photo_path}}" />
-  <div class="overlay"></div>
-
-  <div class="label-strip">
-    <div class="label-eyebrow">Rockbusters</div>
-    <div class="accent"></div>
-    <div class="label-title">{{title}}</div>
-    {{#subtitle}}<div class="label-sub">{{subtitle}}</div>{{/subtitle}}
+  <div class="shade"></div>
+  <div class="tex"></div>
+  <img class="badge" src="{{brand_dir}}/assets/logo-03.png" alt="" />
+  <div class="center">
+    <div class="title">{{title}}</div>
+    <div class="rule"></div>
+    <div class="subtitle">{{subtitle}}</div>
   </div>
-
-</body>
-</html>
+  <div class="wordmark">Rockbusters</div>
+</body></html>

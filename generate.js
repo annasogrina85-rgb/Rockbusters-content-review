@@ -36,6 +36,10 @@ function renderTemplate(templateName, data) {
   const templatePath = path.join(TEMPLATES_DIR, `${templateName}.html`);
   let html = fs.readFileSync(templatePath, 'utf8');
 
+  // Always expose the official design-system dir so templates can link the real
+  // tokens (brand/styles.css → Montserrat + colors) and assets (logo, textures).
+  data = { brand_dir: 'file://' + path.join(__dirname, 'brand'), ...data };
+
   // Replace {{key}} placeholders
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === 'string') {
