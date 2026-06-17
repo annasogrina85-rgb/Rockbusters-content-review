@@ -1,0 +1,19 @@
+<!-- @dsCard group="Type" viewport="700x230" name="Body & eyebrow" subtitle="Sentence-case body + red overline" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-body); background:var(--surface-page); color:var(--text-primary); }
+  .wrap { padding:24px 28px; max-width:560px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:0.6em; font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:0.14em; font-size:13px; color:var(--rb-red); }
+  .eyebrow::before { content:""; width:28px; height:3px; background:currentColor; }
+  p { font-size:16px; line-height:1.55; margin:14px 0 0; }
+  .meta { margin-top:14px; font-size:11px; color:var(--text-muted); }
+</style></head>
+<body>
+  <div class="wrap">
+    <span class="eyebrow">Our philosophy</span>
+    <p>We don't just sell climbing holidays. We live, breathe, and bleed this sport — a global community dedicated to helping you climb better, harder, and more.</p>
+    <div class="meta">Body: Montserrat 400 / 1.55 · Eyebrow: 700 UPPERCASE / 0.14em / red</div>
+  </div>
+</body></html>

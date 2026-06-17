@@ -1,0 +1,46 @@
+/* ============================================================
+   TYPOGRAPHY — Rockbusters
+   One family, Montserrat, worked hard:
+   - DISPLAY: 800/900, UPPERCASE, tight tracking, condensed feel
+   - BODY:    400/500/600, sentence case, comfortable leading
+   ============================================================ */
+:root {
+  --font-display: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* weights */
+  --fw-regular: 400; /* @kind font */
+  --fw-medium: 500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold: 700; /* @kind font */
+  --fw-extrabold: 800; /* @kind font */
+  --fw-black: 900; /* @kind font */
+
+  /* type scale (1.25 major-third-ish, display jumps harder) */
+  --fs-display-1: 5rem;     /* 80px — hero shout */
+  --fs-display-2: 3.5rem;   /* 56px */
+  --fs-h1: 2.5rem;          /* 40px */
+  --fs-h2: 2rem;            /* 32px */
+  --fs-h3: 1.5rem;          /* 24px */
+  --fs-h4: 1.25rem;         /* 20px */
+  --fs-lead: 1.25rem;       /* 20px intro paragraphs */
+  --fs-body: 1rem;          /* 16px */
+  --fs-small: 0.875rem;     /* 14px */
+  --fs-eyebrow: 0.8125rem;  /* 13px overline / eyebrow */
+  --fs-micro: 0.6875rem;    /* 11px legal */
+
+  /* line-heights */
+  --lh-tight: 0.95; /* @kind other */
+  --lh-snug: 1.1; /* @kind other */
+  --lh-normal: 1.55; /* @kind other */
+
+  /* tracking */
+  --ls-display: -0.02em;    /* big type tightens @kind other */
+  --ls-eyebrow: 0.14em;     /* overlines spread out @kind other */
+  --ls-button: 0.04em;      /* @kind other */
+}
+
+/* ----- Optional helper classes (components mostly use vars) ----- */
+.rb-display { font-family: var(--font-display); font-weight: var(--fw-black); text-transform: uppercase; line-height: var(--lh-tight); letter-spacing: var(--ls-display); }
+.rb-eyebrow { font-family: var(--font-display); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: var(--ls-eyebrow); font-size: var(--fs-eyebrow); color: var(--text-accent); }
+.rb-body { font-family: var(--font-body); font-weight: var(--fw-regular); line-height: var(--lh-normal); font-size: var(--fs-body); }

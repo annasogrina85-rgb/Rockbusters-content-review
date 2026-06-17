@@ -1,0 +1,57 @@
+/* ============================================================
+   COLORS — Rockbusters
+   Brand: signal RED, hard BLACK, clean WHITE. Grungy neutrals.
+   ============================================================ */
+:root {
+  /* --- Brand core --- */
+  --rb-red: #e30613;          /* signal red — sampled from logo */
+  --rb-red-bright: #ff1a26;   /* hot accent / hover lift */
+  --rb-red-dark: #b30410;     /* pressed / deep red */
+  --rb-red-darker: #7d0309;   /* darkest red, on-black accents */
+
+  --rb-black: #000000;        /* logo black, hard contrast */
+  --rb-ink: #121212;          /* default text ink, slightly softer */
+  --rb-white: #ffffff;
+
+  /* --- Neutrals (cool-grey, chalk/granite) --- */
+  --rb-grey-950: #0d0d0d;
+  --rb-grey-900: #1a1a1a;
+  --rb-grey-800: #262626;
+  --rb-grey-700: #3d3d3d;
+  --rb-grey-600: #5c5c5c;
+  --rb-grey-500: #808080;
+  --rb-grey-400: #a6a6a6;
+  --rb-grey-300: #cccccc;
+  --rb-grey-200: #e2e2e2;
+  --rb-grey-100: #ededed;
+  --rb-grey-50:  #f5f4f2;     /* chalk off-white */
+
+  /* --- Support / semantic states --- */
+  --rb-success: #1f9d55;
+  --rb-warning: #f5a623;
+  --rb-info: #2b6cb0;
+
+  /* ============================================================
+     SEMANTIC ALIASES — prefer these in components
+     ============================================================ */
+  --color-accent: var(--rb-red);
+  --color-accent-hover: var(--rb-red-dark);
+  --color-accent-press: var(--rb-red-darker);
+  --color-on-accent: var(--rb-white);
+
+  --text-primary: var(--rb-ink);
+  --text-secondary: var(--rb-grey-600);
+  --text-muted: var(--rb-grey-500);
+  --text-inverse: var(--rb-white);
+  --text-accent: var(--rb-red);
+
+  --surface-page: var(--rb-white);
+  --surface-subtle: var(--rb-grey-50);
+  --surface-card: var(--rb-white);
+  --surface-inverse: var(--rb-black);
+  --surface-inverse-2: var(--rb-grey-900);
+
+  --border-default: var(--rb-grey-200);
+  --border-strong: var(--rb-ink);
+  --border-inverse: var(--rb-grey-800);
+}

@@ -1,0 +1,17 @@
+<!-- @dsCard group="Brand" viewport="700x200" name="Textures" subtitle="Grungy halftone overlays" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-body); background:var(--surface-page); }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:18px 20px; }
+  .tile { height:130px; border-radius:var(--radius-md); border:1px solid var(--border-default); display:flex; align-items:flex-end; padding:10px; box-sizing:border-box; background-size:cover; background-position:center; }
+  .cap { font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:0.08em; font-size:10px; padding:3px 7px; border-radius:3px; }
+</style></head>
+<body>
+  <div class="grid">
+    <div class="tile" style="background-color:#fff; background-image:url('../assets/pattern-red.png');"><span class="cap" style="background:#fff;color:#111;">Red / on light</span></div>
+    <div class="tile" style="background-color:#fff; background-image:url('../assets/pattern-dark-grey.png');"><span class="cap" style="background:#fff;color:#111;">Grey / on light</span></div>
+    <div class="tile" style="background-color:#000; background-image:url('../assets/pattern-white.png');"><span class="cap" style="background:rgba(255,255,255,0.15);color:#fff;">White / on dark</span></div>
+  </div>
+</body></html>

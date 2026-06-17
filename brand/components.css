@@ -1,0 +1,37 @@
+/* ============================================================
+   COMPONENT INTERACTION STATES — Rockbusters
+   Base + hover/press/focus that can't live in inline style objects.
+   Imported by styles.css so consumers inherit working states.
+   Visuals stay token-driven; component .jsx owns layout/variant.
+   ============================================================ */
+
+/* ---- Button ---- */
+.rb-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.rb-btn:not(:disabled):active { transform: scale(0.97); }
+
+.rb-btn--primary:not(:disabled):hover { background: var(--color-accent-hover) !important; border-color: var(--color-accent-hover) !important; transform: translateY(-1px); }
+.rb-btn--dark:not(:disabled):hover { background: var(--rb-grey-900) !important; border-color: var(--rb-grey-900) !important; transform: translateY(-1px); }
+.rb-btn--outline:not(:disabled):hover { background: var(--rb-ink) !important; color: var(--rb-white) !important; }
+.rb-btn--outline-invert:not(:disabled):hover { background: var(--rb-white) !important; color: var(--rb-ink) !important; }
+.rb-btn--ghost:not(:disabled):hover { color: var(--color-accent-hover) !important; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---- IconButton ---- */
+.rb-iconbtn { transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-fast); }
+.rb-iconbtn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.rb-iconbtn:not(:disabled):active { transform: scale(0.92); }
+.rb-iconbtn--solid:not(:disabled):hover { background: var(--color-accent-hover) !important; }
+.rb-iconbtn--outline:not(:disabled):hover { background: var(--rb-ink) !important; color: var(--rb-white) !important; }
+.rb-iconbtn--ghost:not(:disabled):hover { background: var(--rb-grey-100) !important; }
+
+/* ---- Card (interactive) ---- */
+.rb-card--interactive { transition: transform var(--dur-normal) var(--ease-out), box-shadow var(--dur-normal) var(--ease-out); cursor: pointer; }
+.rb-card--interactive:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+/* ---- Input ---- */
+.rb-input { transition: border-color var(--dur-fast), box-shadow var(--dur-fast); }
+.rb-input:focus { outline: none; border-color: var(--color-accent) !important; box-shadow: var(--shadow-focus); }
+.rb-input::placeholder { color: var(--text-muted); }
+
+/* ---- Tag (removable / interactive) ---- */
+.rb-tag--button { cursor: pointer; transition: background var(--dur-fast), color var(--dur-fast); }
+.rb-tag--button:hover { background: var(--rb-ink) !important; color: var(--rb-white) !important; }

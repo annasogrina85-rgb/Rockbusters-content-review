@@ -1,0 +1,36 @@
+/* ============================================================
+   EFFECTS — Rockbusters
+   Hard-edged, athletic. Minimal radii, confident shadows,
+   the brand's grungy halftone textures as background overlays.
+   ============================================================ */
+:root {
+  /* radii — kept tight; brand reads sharp & sporty, not soft */
+  --radius-none: 0;
+  --radius-sm: 3px;
+  --radius-md: 6px;        /* default card / input */
+  --radius-lg: 12px;       /* large feature cards */
+  --radius-pill: 999px;    /* buttons, tags, badges */
+
+  /* borders */
+  --border-width: 1px;         /* @kind spacing */
+  --border-width-bold: 2px;    /* @kind spacing */
+  --border-width-heavy: 3px;   /* @kind spacing */
+
+  /* shadows — neutral, no color tint */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.16);
+  --shadow-focus: 0 0 0 3px rgba(227,6,19,0.35);  /* red focus ring */
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);   /* @kind other */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --dur-fast: 120ms;   /* @kind other */
+  --dur-normal: 200ms; /* @kind other */
+  --dur-slow: 360ms;   /* @kind other */
+
+  /* brand textures (grungy halftone) — relative to project root */
+  --texture-red: url("../assets/pattern-red.png");   /* @kind other */
+  --texture-grey: url("../assets/pattern-dark-grey.png"); /* @kind other */
+  --texture-white: url("../assets/pattern-white.png"); /* @kind other */
+}

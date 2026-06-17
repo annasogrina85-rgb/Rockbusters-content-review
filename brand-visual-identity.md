@@ -1,5 +1,18 @@
 # Rockbusters — Visual Identity
 
+> **AUTHORITATIVE SOURCE:** the official Rockbusters design system now lives in
+> `brand/` (tokens, assets, components, guidelines) — handoff from claude.ai/design.
+> Use `brand/tokens/*.css` and `brand/assets/*` as the source of truth.
+> Key corrections vs earlier sampling: brand red is **#e30613** (not #C31319),
+> the display/body font is **Montserrat** (900 uppercase for display), light
+> surface is chalk **#f5f4f2**, and real halftone textures live in
+> `brand/assets/pattern-{red,dark-grey,white}.png`. Logo: `brand/assets/logo-02.png`
+> (lockup) + `logo-03.png` (badge mark).
+
+---
+
+# Rockbusters — Visual Identity
+
 Extracted from the official 2026 brand assets (ambassador posters + Eurotrip
 Instagram carousels). Colors below are **sampled directly from the artwork**
 (exact). This complements the written brand **voice** (`api/_lib/tone.js`).
