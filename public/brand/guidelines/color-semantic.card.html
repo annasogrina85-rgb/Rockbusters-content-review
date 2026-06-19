@@ -1,0 +1,28 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Semantic & surfaces" subtitle="States and the light / dark registers" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-body); background:var(--surface-page); }
+  .wrap { padding:18px 20px; display:flex; flex-direction:column; gap:14px; }
+  .row { display:flex; gap:12px; }
+  .sw { flex:1; border-radius:var(--radius-sm); padding:10px 12px; font-size:11px; font-weight:600; }
+  .lbl { font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:0.12em; font-size:10px; color:var(--text-muted); }
+</style></head>
+<body>
+  <div class="wrap">
+    <div class="lbl">States</div>
+    <div class="row">
+      <div class="sw" style="background:var(--rb-success); color:#fff;">Success</div>
+      <div class="sw" style="background:var(--rb-warning); color:#1a1a1a;">Warning</div>
+      <div class="sw" style="background:var(--rb-info); color:#fff;">Info</div>
+    </div>
+    <div class="lbl">Surfaces</div>
+    <div class="row">
+      <div class="sw" style="background:var(--surface-page); border:1px solid var(--border-default); color:var(--text-primary);">Page</div>
+      <div class="sw" style="background:var(--surface-subtle); color:var(--text-primary);">Subtle</div>
+      <div class="sw" style="background:var(--surface-inverse); color:#fff;">Inverse</div>
+      <div class="sw" style="background:var(--color-accent); color:#fff;">Accent</div>
+    </div>
+  </div>
+</body></html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rockbusters — Design System Review</title>
+<link rel="stylesheet" href="/brand/styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Montserrat',system-ui,sans-serif; background:var(--rb-grey-50,#f5f4f2); color:var(--rb-ink,#121212); }
+  .hero { background:var(--rb-black,#000); color:#fff; padding:48px 32px; background-image:url('/brand/assets/pattern-white.png'); background-size:cover; }
+  .hero-inner { max-width:1100px; margin:0 auto; }
+  .hero img { height:54px; display:block; margin-bottom:24px; }
+  .hero h1 { font-weight:900; text-transform:uppercase; letter-spacing:-0.02em; font-size:44px; line-height:0.95; margin:0; }
+  .hero h1 .r { color:var(--rb-red,#e30613); }
+  .hero p { font-size:16px; line-height:1.6; color:rgba(255,255,255,0.82); max-width:680px; margin:16px 0 0; }
+  .note { margin-top:20px; display:inline-block; background:var(--rb-red,#e30613); color:#fff; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.06em; padding:10px 16px; border-radius:999px; }
+  main { max-width:1100px; margin:0 auto; padding:48px 32px 80px; }
+  h2 { font-weight:900; text-transform:uppercase; letter-spacing:0.02em; font-size:24px; margin:56px 0 6px; }
+  h2:first-child { margin-top:0; }
+  h2 .bar { display:inline-block; width:34px; height:6px; background:var(--rb-red,#e30613); vertical-align:middle; margin-right:14px; border-radius:3px; }
+  .sub { color:var(--rb-grey-600,#5c5c5c); font-size:14px; margin:0 0 22px; font-weight:500; }
+  /* generated outputs */
+  .outputs { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:20px; }
+  .out { background:#fff; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:8px; overflow:hidden; }
+  .out img { width:100%; display:block; }
+  .out .cap { padding:10px 14px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--rb-grey-700,#3d3d3d); }
+  /* foundation cards */
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; }
+  .card { background:#fff; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:8px; overflow:hidden; }
+  .card .label { padding:9px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid var(--rb-grey-100,#ededed); }
+  .card iframe { width:100%; border:0; display:block; background:#fff; }
+  footer { max-width:1100px; margin:0 auto; padding:0 32px 64px; color:var(--rb-grey-600,#5c5c5c); font-size:13px; line-height:1.7; }
+</style></head>
+<body>
+<div class="hero"><div class="hero-inner">
+  <img src="/brand/assets/logo-02.png" alt="Rockbusters">
+  <h1>Design System<br><span class="r">Review</span></h1>
+  <p>This is the brand system the content agent now uses for every post, cover and asset — colours, type, logo, textures, components — plus real generated examples. Please scroll through and check it reads on-brand.</p>
+  <span class="note">See something off? Reply with what + where.</span>
+</div></div>
+
+<main>
+  <h2><span class="bar"></span>Generated examples</h2>
+  <p class="sub">Real output from the system — the June 28 event covers and one of each post type.</p>
+  <div class="outputs" id="outputs"></div>
+
+  <h2><span class="bar"></span>Colours</h2>
+  <div class="cards" data-group="Colors"></div>
+
+  <h2><span class="bar"></span>Typography</h2>
+  <div class="cards" data-group="Type"></div>
+
+  <h2><span class="bar"></span>Logo &amp; textures</h2>
+  <div class="cards" data-group="Brand"></div>
+
+  <h2><span class="bar"></span>Spacing, radii &amp; shadows</h2>
+  <div class="cards" data-group="Spacing"></div>
+
+  <h2><span class="bar"></span>Components</h2>
+  <div class="cards" data-group="Components"></div>
+</main>
+
+<footer>
+  Rockbusters Design System · font Montserrat · brand red #e30613 ·
+  this page is a read-only review of the live system.
+</footer>
+
+<script>
+  const outputs = [
+    ['samples/corbera-luma.jpg','Corbera event · Luma 1:1'],
+    ['samples/corbera-ig.jpg','Corbera event · Instagram'],
+    ['samples/sample-carousel.jpg','Carousel cover'],
+    ['samples/sample-quote.jpg','Quote card'],
+    ['samples/sample-highlight.jpg','Highlight cover'],
+    ['samples/sample-story.jpg','Story frame'],
+  ];
+  document.getElementById('outputs').innerHTML = outputs.map(([src,cap])=>
+    `<div class="out"><img loading="lazy" src="/brand/${src}"><div class="cap">${cap}</div></div>`).join('');
+
+  const cards = {
+    Colors: [['color-brand',190],['color-red',130],['color-neutral',130],['color-semantic',150]],
+    Type:   [['type-display',230],['type-weights',160],['type-scale',260],['type-body',230]],
+    Brand:  [['brand-logo',230],['brand-logo-dark',220],['brand-textures',200]],
+    Spacing:[['radii',160],['shadows',180],['spacing-scale',200]],
+    Components: [['__core',740]],
+  };
+  for (const [group, list] of Object.entries(cards)) {
+    const wrap = document.querySelector(`.cards[data-group="${group}"]`);
+    wrap.innerHTML = list.map(([name,h])=>{
+      const src = name==='__core' ? '/brand/components/core/core.card.html' : `/brand/guidelines/${name}.card.html`;
+      return `<div class="card"><iframe src="${src}" style="height:${h}px" loading="lazy"></iframe></div>`;
+    }).join('');
+  }
+</script>
+</body></html>

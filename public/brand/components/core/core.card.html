@@ -1,0 +1,118 @@
+<!-- @dsCard group="Components" viewport="700x720" name="Core components" subtitle="Buttons, badges, tags, cards, inputs, stats" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rockbusters — Core components</title>
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--surface-page); color: var(--text-primary); font-family: var(--font-body); }
+  .wrap { padding: 28px 32px; display: flex; flex-direction: column; gap: 26px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+  .blk { display: flex; flex-direction: column; gap: 10px; }
+  .lbl { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; color: var(--text-muted); }
+  .panel-dark { background: var(--rb-black); padding: 20px 24px; border-radius: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Button, IconButton, Badge, Tag, Card, Stat, Input, Eyebrow } = window.RockbustersDesignSystem_5b5bc2;
+
+  function Ic({ name, size = 18 }) {
+    const ref = React.useRef(null);
+    React.useEffect(() => {
+      if (ref.current && window.lucide) {
+        ref.current.innerHTML = "";
+        const el = document.createElement("i");
+        el.setAttribute("data-lucide", name);
+        ref.current.appendChild(el);
+        window.lucide.createIcons({ attrs: { width: size, height: size } });
+      }
+    });
+    return <span ref={ref} style={{ display: "inline-flex" }} />;
+  }
+
+  function Demo() {
+    const [tag, setTag] = React.useState("Sport");
+    return (
+      <div className="wrap">
+        <div className="blk">
+          <span className="lbl">Buttons</span>
+          <div className="row">
+            <Button variant="primary" rightIcon={<Ic name="arrow-right" />}>Start sending</Button>
+            <Button variant="dark">Book a camp</Button>
+            <Button variant="outline">View trips</Button>
+            <Button variant="ghost">Learn more</Button>
+            <Button variant="primary" disabled>Sold out</Button>
+          </div>
+          <div className="row">
+            <Button variant="primary" size="sm">Small</Button>
+            <Button variant="primary" size="md">Medium</Button>
+            <Button variant="primary" size="lg">Large</Button>
+            <IconButton variant="solid" aria-label="next"><Ic name="arrow-right" size={20} /></IconButton>
+            <IconButton variant="dark" aria-label="play"><Ic name="play" size={20} /></IconButton>
+            <IconButton variant="outline" aria-label="bookmark"><Ic name="bookmark" size={20} /></IconButton>
+          </div>
+        </div>
+
+        <div className="blk">
+          <span className="lbl">Badges &amp; tags</span>
+          <div className="row">
+            <Badge variant="red">Women-only</Badge>
+            <Badge variant="black">New</Badge>
+            <Badge variant="outline">Beginner</Badge>
+            <Badge variant="black" shape="square">8a+</Badge>
+            <Badge variant="light">1% For The Planet</Badge>
+          </div>
+          <div className="row">
+            {["Sport", "Bouldering", "Trad", "Multi-pitch"].map((t) => (
+              <Tag key={t} active={tag === t} onClick={() => setTag(t)}>{t}</Tag>
+            ))}
+          </div>
+        </div>
+
+        <div className="blk">
+          <span className="lbl">Cards</span>
+          <div className="row" style={{ alignItems: "stretch" }}>
+            <Card tone="light" interactive style={{ flex: 1, minWidth: 180 }}>
+              <Eyebrow>Sport climbing</Eyebrow>
+              <h3 style={{ margin: "8px 0 0", fontFamily: "var(--font-display)", textTransform: "uppercase", fontWeight: 800 }}>Kalymnos road trip</h3>
+            </Card>
+            <Card tone="dark" style={{ flex: 1, minWidth: 180 }}>
+              <Eyebrow color="var(--rb-red)">The lineup</Eyebrow>
+              <h3 style={{ margin: "8px 0 0", fontFamily: "var(--font-display)", textTransform: "uppercase", fontWeight: 800 }}>Coach with legends</h3>
+            </Card>
+            <Card tone="red" style={{ flex: 1, minWidth: 180 }}>
+              <Eyebrow color="rgba(255,255,255,0.85)">Philosophy</Eyebrow>
+              <h3 style={{ margin: "8px 0 0", fontFamily: "var(--font-display)", textTransform: "uppercase", fontWeight: 800 }}>Play hard. Work harder.</h3>
+            </Card>
+          </div>
+        </div>
+
+        <div className="blk">
+          <span className="lbl">Stats &amp; input</span>
+          <div className="panel-dark">
+            <div className="row" style={{ gap: 48 }}>
+              <Stat value="1:6" label="Coach to climbers" />
+              <Stat value="100%" label="Rock time" />
+              <Stat value="30+" label="Pro coaches" />
+            </div>
+          </div>
+          <div style={{ maxWidth: 320 }}>
+            <Input label="Email" type="email" placeholder="you@send.it" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>
