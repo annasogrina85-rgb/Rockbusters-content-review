@@ -30,6 +30,25 @@
   .card .label { padding:9px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid var(--rb-grey-100,#ededed); }
   .card iframe { width:100%; border:0; display:block; background:#fff; }
   footer { max-width:1100px; margin:0 auto; padding:0 32px 64px; color:var(--rb-grey-600,#5c5c5c); font-size:13px; line-height:1.7; }
+  /* prose sections (voice + visual) */
+  .panel { background:#fff; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:8px; padding:26px 30px; }
+  .panel .vibe { font-size:16px; line-height:1.6; margin:0 0 18px; }
+  .rules { list-style:none; margin:0; padding:0; display:grid; gap:12px; }
+  .rules li { font-size:14px; line-height:1.55; color:var(--rb-grey-700,#3d3d3d); padding-left:0; }
+  .rules b { color:var(--rb-ink,#121212); text-transform:uppercase; font-size:12px; letter-spacing:0.06em; display:inline-block; min-width:130px; }
+  .rules em { font-style:normal; color:var(--rb-grey-600,#5c5c5c); }
+  .dodont { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:22px; }
+  .dd { border-radius:6px; padding:14px 16px; font-size:14px; line-height:1.5; }
+  .dd.do { background:#eafaf0; border:1px solid #bce7cd; } .dd.dont { background:#fdeaea; border:1px solid #f3c6c6; }
+  .dd .tag { font-weight:800; text-transform:uppercase; font-size:11px; letter-spacing:0.08em; display:block; margin-bottom:6px; }
+  .dd.do .tag { color:#1f9d55; } .dd.dont .tag { color:var(--rb-red,#e30613); }
+  .phrases { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+  .phrases span { background:var(--rb-grey-100,#ededed); border-radius:999px; padding:7px 14px; font-size:13px; font-weight:600; }
+  .vlist { display:grid; gap:14px; }
+  .vrow { display:grid; grid-template-columns:160px 1fr; gap:16px; align-items:start; }
+  .vrow .k { font-weight:800; text-transform:uppercase; font-size:12px; letter-spacing:0.06em; color:var(--rb-red,#e30613); }
+  .vrow .v { font-size:14px; line-height:1.55; color:var(--rb-grey-700,#3d3d3d); }
+  @media (max-width:640px){ .dodont{grid-template-columns:1fr} .vrow{grid-template-columns:1fr;gap:4px} }
 </style></head>
 <body>
 <div class="hero"><div class="hero-inner">
@@ -44,6 +63,29 @@
   <p class="sub">Real output from the system — the June 28 event covers and one of each post type.</p>
   <div class="outputs" id="outputs"></div>
 
+  <h2><span class="bar"></span>Brand voice</h2>
+  <p class="sub">How every Rockbusters post reads. Check it sounds like us.</p>
+  <div class="panel">
+    <p class="vibe"><strong>Vibe:</strong> bold, punchy, insider, motivational, a little irreverent — the voice of a strong climber hyping you up at the crag. Confident, never corporate.</p>
+    <ul class="rules">
+      <li><b>Person</b> First-person <em>"we"</em> (the community) talking to <em>"you"</em> (the climber). "We'll push you as hard as you let us — you'll leave a better climber."</li>
+      <li><b>Casing</b> Headlines are ALL-CAPS, short, declarative, often three-beat. Body copy is sentence case.</li>
+      <li><b>Punctuation</b> Staccato. Periods as drumbeats: <em>"CLIMB. HARD. EAT. SLEEP. CLIMB. AGAIN."</em> Em-dashes &amp; ellipses for momentum.</li>
+      <li><b>Climbing fluency</b> Real lexicon as a badge — beta, send, redpoint, onsight, flash, crusher, tie in, DWS, trad, project. Don't over-explain it.</li>
+      <li><b>Numbers as flex</b> "1 coach / 2–6 climbers" · "100% rock time" · "1% For The Planet".</li>
+      <li><b>Emoji</b> None. Energy comes from typography and red, not emoji.</li>
+    </ul>
+    <div class="dodont">
+      <div class="dd do"><span class="tag">Do</span>"Stop wishing and start sending."</div>
+      <div class="dd dont"><span class="tag">Don't</span>"Book your premium guided climbing experience today."</div>
+    </div>
+    <div class="phrases">
+      <span>Climb better, harder &amp; more</span><span>Play hard. Work harder.</span>
+      <span>Run by climbers, for climbers.</span><span>100% rock time.</span>
+      <span>Come alone, leave with a crew.</span>
+    </div>
+  </div>
+
   <h2><span class="bar"></span>Colours</h2>
   <div class="cards" data-group="Colors"></div>
 
@@ -55,6 +97,17 @@
 
   <h2><span class="bar"></span>Spacing, radii &amp; shadows</h2>
   <div class="cards" data-group="Spacing"></div>
+
+  <h2><span class="bar"></span>Visual identity — in words</h2>
+  <p class="sub">The rules behind the look, in plain language.</p>
+  <div class="panel"><div class="vlist">
+    <div class="vrow"><div class="k">Palette</div><div class="v">Three colours do the work: signal red <strong>#e30613</strong>, hard black, clean white. Red is an accent and an attention weapon — one thing per view (CTA, a key stat), never a wash. A cool granite-grey ramp handles surfaces and secondary text.</div></div>
+    <div class="vrow"><div class="k">Typography</div><div class="v">One family — Montserrat — pushed to extremes. Display: 800–900, UPPERCASE, tight tracking (−0.02em), near-solid leading (0.95), words stacked into a block. Body: 400–600, sentence case. Eyebrows: bold uppercase, wide 0.14em tracking, red.</div></div>
+    <div class="vrow"><div class="k">Backgrounds</div><div class="v">Two registers: clean white/chalk for content, hard black sections for impact. Grungy halftone textures dropped in at low opacity. No smooth gradients, no blurry glows. Real climbing photography, full-bleed, with a dark protection gradient for legible type.</div></div>
+    <div class="vrow"><div class="k">Layout</div><div class="v">Confident, grid-driven, generous vertical rhythm. Strong left-aligned headline blocks; big type allowed to dominate. Edge-to-edge dark bands break the page. Max width 1200px.</div></div>
+    <div class="vrow"><div class="k">Shape &amp; depth</div><div class="v">Hard-edged and athletic. Tight radii — cards 6px, feature cards 12px max; buttons, tags &amp; badges are full pills. Crisp 1–2px borders (3px for the "stamp" look). Shadows neutral and restrained — depth comes from contrast and texture, not blur.</div></div>
+    <div class="vrow"><div class="k">Motion</div><div class="v">Quick and punchy, never floaty. 120–200ms, ease-out. Hover darkens red / lifts 1px; press shrinks slightly.</div></div>
+  </div></div>
 
   <h2><span class="bar"></span>Components</h2>
   <div class="cards" data-group="Components"></div>
