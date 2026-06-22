@@ -4,10 +4,10 @@
 <link rel="stylesheet" href="../styles.css" />
 <style>
   body { margin:0; font-family:var(--font-body); }
-  .panel { background:var(--rb-black); padding:34px 36px; min-height:220px; box-sizing:border-box; display:flex; align-items:center; gap:40px;
-    background-image:url("../assets/pattern-white.png"); background-size:cover; }
-  .panel img { height:88px; }
-  .note { color:rgba(255,255,255,0.7); font-size:12px; max-width:200px; line-height:1.5; }
+  .panel { position:relative; overflow:hidden; background:var(--rb-black); padding:34px 36px; min-height:220px; box-sizing:border-box; display:flex; align-items:center; gap:40px; }
+  .panel::before { content:""; position:absolute; inset:0; background:url("../assets/pattern-white.png"); background-size:cover; opacity:0.12; pointer-events:none; }
+  .panel img { height:88px; position:relative; z-index:1; }
+  .note { color:rgba(255,255,255,0.85); font-size:12px; max-width:200px; line-height:1.5; position:relative; z-index:1; }
 </style></head>
 <body>
   <div class="panel">

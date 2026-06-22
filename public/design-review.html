@@ -7,9 +7,12 @@
 <style>
   * { box-sizing: border-box; }
   body { margin:0; font-family:'Montserrat',system-ui,sans-serif; background:var(--rb-grey-50,#f5f4f2); color:var(--rb-ink,#121212); }
-  .hero { background:var(--rb-black,#000); color:#fff; padding:48px 32px; background-image:url('/brand/assets/pattern-white.png'); background-size:cover; }
-  .hero-inner { max-width:1100px; margin:0 auto; }
-  .hero img { height:54px; display:block; margin-bottom:24px; }
+  .hero { position:relative; overflow:hidden; background:var(--rb-black,#000); color:#fff; padding:48px 32px; }
+  .hero::before { content:""; position:absolute; inset:0; background:url('/brand/assets/pattern-white.png'); background-size:cover; opacity:0.10; pointer-events:none; }
+  .hero-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; }
+  .hero .lockup { display:flex; align-items:center; gap:14px; margin-bottom:26px; }
+  .hero .lockup img { height:48px; display:block; }
+  .hero .lockup span { font-weight:900; text-transform:uppercase; font-size:26px; letter-spacing:0.01em; }
   .hero h1 { font-weight:900; text-transform:uppercase; letter-spacing:-0.02em; font-size:44px; line-height:0.95; margin:0; }
   .hero h1 .r { color:var(--rb-red,#e30613); }
   .hero p { font-size:16px; line-height:1.6; color:rgba(255,255,255,0.82); max-width:680px; margin:16px 0 0; }
@@ -26,9 +29,18 @@
   .out .cap { padding:10px 14px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--rb-grey-700,#3d3d3d); }
   /* foundation cards */
   .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; }
-  .card { background:#fff; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:8px; overflow:hidden; }
-  .card .label { padding:9px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid var(--rb-grey-100,#ededed); }
+  .card { background:#fff; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; }
+  .card-head { display:flex; align-items:center; justify-content:space-between; padding:9px 14px; border-bottom:1px solid var(--rb-grey-100,#ededed); }
+  .card-head .name { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--rb-ink,#121212); }
+  .card-head a { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--rb-red,#e30613); text-decoration:none; white-space:nowrap; }
+  .card-head a:hover { text-decoration:underline; }
   .card iframe { width:100%; border:0; display:block; background:#fff; }
+  /* clickable example images + lightbox */
+  .out img { cursor:zoom-in; }
+  .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:100; align-items:center; justify-content:center; padding:24px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:96vw; max-height:92vh; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+  .lightbox .x { position:absolute; top:18px; right:24px; color:#fff; font-size:34px; font-weight:700; cursor:pointer; line-height:1; }
   footer { max-width:1100px; margin:0 auto; padding:0 32px 64px; color:var(--rb-grey-600,#5c5c5c); font-size:13px; line-height:1.7; }
   /* prose sections (voice + visual) */
   .panel { background:#fff; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:8px; padding:26px 30px; }
@@ -52,7 +64,7 @@
 </style></head>
 <body>
 <div class="hero"><div class="hero-inner">
-  <img src="/brand/assets/logo-02.png" alt="Rockbusters">
+  <div class="lockup"><img src="/brand/assets/logo-03.png" alt=""><span>Rockbusters</span></div>
   <h1>Design System<br><span class="r">Review</span></h1>
   <p>This is the brand system the content agent now uses for every post, cover and asset — colours, type, logo, textures, components — plus real generated examples. Please scroll through and check it reads on-brand.</p>
   <span class="note">See something off? Reply with what + where.</span>
@@ -128,21 +140,25 @@
     ['samples/sample-story.jpg','Story frame'],
   ];
   document.getElementById('outputs').innerHTML = outputs.map(([src,cap])=>
-    `<div class="out"><img loading="lazy" src="/brand/${src}"><div class="cap">${cap}</div></div>`).join('');
+    `<div class="out"><img loading="lazy" src="/brand/${src}" onclick="openLightbox('/brand/${src}')"><div class="cap">${cap}</div></div>`).join('');
 
   const cards = {
-    Colors: [['color-brand',190],['color-red',130],['color-neutral',130],['color-semantic',150]],
-    Type:   [['type-display',230],['type-weights',160],['type-scale',260],['type-body',230]],
-    Brand:  [['brand-logo',230],['brand-logo-dark',220],['brand-textures',200]],
-    Spacing:[['radii',160],['shadows',180],['spacing-scale',200]],
-    Components: [['__core',740]],
+    Colors: [['color-brand','Brand core',190],['color-red','Red scale',130],['color-neutral','Neutral scale',130],['color-semantic','Semantic & surfaces',150]],
+    Type:   [['type-display','Display',230],['type-weights','Weights',160],['type-scale','Type scale',260],['type-body','Body & eyebrow',230]],
+    Brand:  [['brand-logo','Logo',230],['brand-logo-dark','Logo on dark',220],['brand-textures','Textures',200]],
+    Spacing:[['radii','Radii',160],['shadows','Shadows',180],['spacing-scale','Spacing scale',200]],
+    Components: [['__core','Core components',740]],
   };
   for (const [group, list] of Object.entries(cards)) {
     const wrap = document.querySelector(`.cards[data-group="${group}"]`);
-    wrap.innerHTML = list.map(([name,h])=>{
+    wrap.innerHTML = list.map(([name,label,h])=>{
       const src = name==='__core' ? '/brand/components/core/core.card.html' : `/brand/guidelines/${name}.card.html`;
-      return `<div class="card"><iframe src="${src}" style="height:${h}px" loading="lazy"></iframe></div>`;
+      return `<div class="card"><div class="card-head"><span class="name">${label}</span><a href="${src}" target="_blank" rel="noopener">Open ↗</a></div><iframe src="${src}" style="height:${h}px" loading="lazy"></iframe></div>`;
     }).join('');
   }
+
+  function openLightbox(src){ const lb=document.getElementById('lightbox'); document.getElementById('lb-img').src=src; lb.classList.add('open'); }
+  function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
 </script>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><span class="x">×</span><img id="lb-img" src="" alt=""></div>
 </body></html>

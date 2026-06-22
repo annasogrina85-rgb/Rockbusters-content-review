@@ -10,7 +10,10 @@
             rgba(0,0,0,.55) 0%, rgba(0,0,0,.2) 35%, rgba(0,0,0,.45) 70%, rgba(0,0,0,.8) 100%); }
   .tex { position:absolute; inset:0; background:url("{{brand_dir}}/assets/pattern-white.png"); background-size:cover;
          opacity:.14; mix-blend-mode:screen; pointer-events:none; }
-  .badge { position:absolute; top:96px; left:50%; transform:translateX(-50%); height:96px; z-index:5; }
+  .brand { position:absolute; top:80px; left:60px; display:flex; align-items:center; gap:14px; z-index:5; }
+  .brand img { height:62px; }
+  .brand .wordmark { font-family:var(--font-display); font-weight:var(--fw-black); font-size:28px;
+                     text-transform:uppercase; color:var(--rb-white); }
   .center { position:absolute; left:60px; right:60px; top:50%; transform:translateY(-50%); text-align:center; z-index:4; }
   .title { font-family:var(--font-display); font-weight:var(--fw-black); text-transform:uppercase;
            font-size:128px; line-height:var(--lh-tight); letter-spacing:var(--ls-display); color:var(--rb-white);
@@ -26,11 +29,10 @@
   <img class="photo" src="{{photo_path}}" />
   <div class="shade"></div>
   <div class="tex"></div>
-  <img class="badge" src="{{brand_dir}}/assets/logo-03.png" alt="" />
+  <div class="brand"><img src="{{brand_dir}}/assets/logo-03.png" alt=""><span class="wordmark">Rockbusters</span></div>
   <div class="center">
     <div class="title">{{title}}</div>
     <div class="rule"></div>
     <div class="subtitle">{{subtitle}}</div>
   </div>
-  <div class="wordmark">Rockbusters</div>
 </body></html>
