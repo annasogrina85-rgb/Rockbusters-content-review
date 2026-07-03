@@ -144,7 +144,7 @@ function buildStructuredTodos(plan, kvDrafts) {
   return { todos, postMap };
 }
 
-function buildEmail(plan, kvDrafts, { isReminder = false, planReview = [] } = {}) {
+function buildEmail(plan, kvDrafts, { isReminder = false, planReview = [], dsFeedback = [] } = {}) {
   const reviewPosts = (plan.posts || []).filter(p => {
     const kvm = kvDrafts[p.name];
     return (kvm?.status === 'pending_review' || kvm?.status === 'pending' || p.status === 'pending_review') && !kvm?.status?.includes('approved');
@@ -177,6 +177,9 @@ function buildEmail(plan, kvDrafts, { isReminder = false, planReview = [] } = {}
     ${reminderBanner}
     ${section('🧭 Plan review', planReview.map(f =>
       f.level === 'high' ? `<strong style="color:#cc3300">${f.text}</strong>` : f.text
+    ))}
+    ${section('🎨 Design-system feedback (new)', dsFeedback.map(i =>
+      `<strong>${i.name}</strong> on <em>${i.section}</em>: ${i.text}`
     ))}
     ${section('🔍 Needs your review', [
       ...reviewPosts.map(p => `<a href="${REVIEW_URL}" style="color:#ff6b00"><strong>${p.name.replace(/_/g, ' ')}</strong></a> [${p.type}]${p.blocker ? ` — <em>${p.blocker}</em>` : ''}`),
@@ -261,6 +264,14 @@ export default async function handler(req, res) {
     const { todos, postMap } = buildStructuredTodos(plan, kvDrafts);
     const planReview = reviewPlan(plan, kvDrafts);
 
+    // New design-system feedback from /design-review (best-effort)
+    let dsFeedback = [];
+    try {
+      const rawFb = await kv.get('ds:feedback');
+      const allFb = typeof rawFb === 'string' ? JSON.parse(rawFb) : rawFb;
+      dsFeedback = (Array.isArray(allFb) ? allFb : []).filter(i => i.status === 'new');
+    } catch {}
+
     // todo:latest is always refreshed (app reads it); only the EMAIL is gated.
     await kv.set('todo:latest', JSON.stringify({ content: todo, generated_at: new Date().toISOString() }));
     await kv.set('todos:structured', JSON.stringify({ todos, postMap, generated_at: new Date().toISOString() }));
@@ -275,6 +286,7 @@ export default async function handler(req, res) {
       drafts: names.slice().sort().map(n => `${n}:${kvDrafts[n]?.status || '?'}:${(kvDrafts[n]?.comments || []).length}`),
       review: planReview.map(f => f.text),
       planUpdated: plan.updated || null,
+      dsFeedback: dsFeedback.map(i => i.id),
     });
     let last = await kv.get('notify:last-signature');
     if (last && typeof last !== 'string') last = JSON.stringify(last);
@@ -298,12 +310,13 @@ export default async function handler(req, res) {
         drafts: names.length,
         pending: allPending.length,
         planReview,
+        dsFeedback: dsFeedback.length,
         regen,
         recaps,
       });
     }
 
-    const html = buildEmail(plan, kvDrafts, { isReminder, planReview });
+    const html = buildEmail(plan, kvDrafts, { isReminder, planReview, dsFeedback });
     const prefix = isMorning ? '🏔' : '🔄';
     const timeLabel = isMorning ? 'Morning brief' : 'Afternoon update';
     const subject = isReminder

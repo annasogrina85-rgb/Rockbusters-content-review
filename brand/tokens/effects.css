@@ -4,22 +4,24 @@
    the brand's grungy halftone textures as background overlays.
    ============================================================ */
 :root {
-  /* radii — kept tight; brand reads sharp & sporty, not soft */
+  /* radii — Michal (2026-07-03): exactly THREE shapes, keep it simple.
+     1) square (0)  2) slight (6px)  3) pill. Nothing else. */
   --radius-none: 0;
-  --radius-sm: 3px;
-  --radius-md: 6px;        /* default card / input */
-  --radius-lg: 12px;       /* large feature cards */
-  --radius-pill: 999px;    /* buttons, tags, badges */
+  --radius-slight: 6px;               /* the one soft corner — cards, inputs, tags */
+  --radius-pill: 999px;               /* buttons, tags, badges */
+  --radius-sm: var(--radius-slight);  /* deprecated alias */
+  --radius-md: var(--radius-slight);  /* deprecated alias */
+  --radius-lg: var(--radius-slight);  /* deprecated alias */
 
-  /* borders */
+  /* borders — one keyline weight for outlined pills/tags (Michal: consistent!) */
   --border-width: 1px;         /* @kind spacing */
   --border-width-bold: 2px;    /* @kind spacing */
   --border-width-heavy: 3px;   /* @kind spacing */
 
-  /* shadows — neutral, no color tint */
+  /* shadows — Michal (2026-07-03): two shadow sizes + none. Nothing bigger. */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.16);
+  --shadow-lg: var(--shadow-md);      /* deprecated alias — collapsed to md */
   --shadow-focus: 0 0 0 3px rgba(227,6,19,0.35);  /* red focus ring */
 
   /* motion */

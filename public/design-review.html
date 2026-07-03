@@ -61,13 +61,28 @@
   .vrow .k { font-weight:800; text-transform:uppercase; font-size:12px; letter-spacing:0.06em; color:var(--rb-red,#e30613); }
   .vrow .v { font-size:14px; line-height:1.55; color:var(--rb-grey-700,#3d3d3d); }
   @media (max-width:640px){ .dodont{grid-template-columns:1fr} .vrow{grid-template-columns:1fr;gap:4px} }
+  /* per-section feedback */
+  .fb { margin:18px 0 4px; border:1px dashed var(--rb-grey-300,#ccc); border-radius:6px; background:#fff; }
+  .fb summary { cursor:pointer; padding:10px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--rb-grey-600,#5c5c5c); list-style:none; }
+  .fb summary::before { content:'💬 '; }
+  .fb[open] summary { border-bottom:1px solid var(--rb-grey-100,#ededed); }
+  .fb .fb-body { padding:12px 14px; }
+  .fb textarea { width:100%; box-sizing:border-box; min-height:64px; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:6px; padding:8px 10px; font-family:inherit; font-size:13px; resize:vertical; }
+  .fb input { width:180px; border:1px solid var(--rb-grey-200,#e2e2e2); border-radius:6px; padding:7px 10px; font-family:inherit; font-size:13px; }
+  .fb .fb-row { display:flex; gap:10px; margin-top:8px; align-items:center; flex-wrap:wrap; }
+  .fb button { background:var(--rb-red,#e30613); color:#fff; border:0; border-radius:999px; padding:8px 18px; font-family:inherit; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.05em; cursor:pointer; }
+  .fb .fb-status { font-size:12px; color:var(--rb-grey-600,#5c5c5c); }
+  .fb .fb-list { margin-top:10px; display:grid; gap:8px; }
+  .fb .fb-item { font-size:13px; line-height:1.5; background:var(--rb-grey-50,#f5f4f2); border-radius:6px; padding:8px 12px; }
+  .fb .fb-item b { font-size:11px; text-transform:uppercase; letter-spacing:0.05em; }
+  .fb .fb-item .done { color:#1f9d55; font-weight:700; font-size:11px; }
 </style></head>
 <body>
 <div class="hero"><div class="hero-inner">
-  <div class="lockup"><img src="/brand/assets/logo-03.png" alt=""><span>Rockbusters</span></div>
+  <div class="lockup"><img src="/brand/assets/logo-03.png" alt=""></div>
   <h1>Design System<br><span class="r">Review</span></h1>
   <p>This is the brand system the content agent now uses for every post, cover and asset — colours, type, logo, textures, components — plus real generated examples. Please scroll through and check it reads on-brand.</p>
-  <span class="note">See something off? Reply with what + where.</span>
+  <span class="note">See something off? Leave feedback under any section below.</span>
 </div></div>
 
 <main>
@@ -113,11 +128,11 @@
   <h2><span class="bar"></span>Visual identity — in words</h2>
   <p class="sub">The rules behind the look, in plain language.</p>
   <div class="panel"><div class="vlist">
-    <div class="vrow"><div class="k">Palette</div><div class="v">Three colours do the work: signal red <strong>#e30613</strong>, hard black, clean white. Red is an accent and an attention weapon — one thing per view (CTA, a key stat), never a wash. A cool granite-grey ramp handles surfaces and secondary text.</div></div>
-    <div class="vrow"><div class="k">Typography</div><div class="v">One family — Montserrat — pushed to extremes. Display: 800–900, UPPERCASE, tight tracking (−0.02em), near-solid leading (0.95), words stacked into a block. Body: 400–600, sentence case. Eyebrows: bold uppercase, wide 0.14em tracking, red.</div></div>
+    <div class="vrow"><div class="k">Palette</div><div class="v">Signal red <strong>#e30613</strong> + deep red (two reds only — use intensity steps when a scale is needed), hard black, clean white and a <strong>creamy white</strong> for backgrounds (never pure white washes). Red is an accent and an attention weapon — one thing per view (CTA, a key stat). A cool granite-grey ramp handles surfaces and secondary text.</div></div>
+    <div class="vrow"><div class="k">Typography</div><div class="v">One family — Montserrat — pushed to extremes. Display: 800–900, UPPERCASE, tight tracking (−0.02em), near-solid leading (0.95), words stacked into a block — tight line spacing pulls the eye to the visual, but never so tight that letters or commas collide. Small text (body, eyebrows) gets more spacing for legibility. Body: 400–600, sentence case. Eyebrows: bold uppercase, wide 0.14em tracking, red.</div></div>
     <div class="vrow"><div class="k">Backgrounds</div><div class="v">Two registers: clean white/chalk for content, hard black sections for impact. Grungy halftone textures dropped in at low opacity. No smooth gradients, no blurry glows. Real climbing photography, full-bleed, with a dark protection gradient for legible type.</div></div>
     <div class="vrow"><div class="k">Layout</div><div class="v">Confident, grid-driven, generous vertical rhythm. Strong left-aligned headline blocks; big type allowed to dominate. Edge-to-edge dark bands break the page. Max width 1200px.</div></div>
-    <div class="vrow"><div class="k">Shape &amp; depth</div><div class="v">Hard-edged and athletic. Tight radii — cards 6px, feature cards 12px max; buttons, tags &amp; badges are full pills. Crisp 1–2px borders (3px for the "stamp" look). Shadows neutral and restrained — depth comes from contrast and texture, not blur.</div></div>
+    <div class="vrow"><div class="k">Shape &amp; depth</div><div class="v">Hard-edged and athletic. <strong>Three shapes only</strong>: square, slightly rounded (6px), and full pill (buttons, tags, badges). One keyline weight for outlined pills. <strong>Two shadows + none</strong> — small and medium, nothing bigger; depth comes from contrast and texture, not blur.</div></div>
     <div class="vrow"><div class="k">Motion</div><div class="v">Quick and punchy, never floaty. 120–200ms, ease-out. Hover darkens red / lifts 1px; press shrinks slightly.</div></div>
   </div></div>
 
@@ -132,7 +147,6 @@
 
 <script>
   const outputs = [
-    ['samples/corbera-luma.jpg','Corbera event · Luma 1:1'],
     ['samples/corbera-ig.jpg','Corbera event · Instagram'],
     ['samples/sample-carousel.jpg','Carousel cover'],
     ['samples/sample-quote.jpg','Quote card'],
@@ -159,6 +173,61 @@
 
   function openLightbox(src){ const lb=document.getElementById('lightbox'); document.getElementById('lb-img').src=src; lb.classList.add('open'); }
   function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+
+  // ── Per-section feedback ─────────────────────────────────────────────
+  const esc2 = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function fbWidget(section){
+    const id = section.replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+    return `<details class="fb" data-section="${esc2(section)}">
+      <summary>Feedback on "${esc2(section)}"</summary>
+      <div class="fb-body">
+        <textarea id="fb-text-${id}" placeholder="What's off, what should change? Be specific — the agent applies this."></textarea>
+        <div class="fb-row">
+          <input id="fb-name-${id}" type="text" placeholder="Your name">
+          <button onclick="sendFb('${esc2(section)}','${id}')">Send feedback</button>
+          <span class="fb-status" id="fb-status-${id}"></span>
+        </div>
+        <div class="fb-list" id="fb-list-${id}"></div>
+      </div>
+    </details>`;
+  }
+  // insert a widget after every section (after the section's content block)
+  document.querySelectorAll('main h2').forEach(h2 => {
+    const section = h2.textContent.trim();
+    let end = h2.nextElementSibling;
+    while (end && end.nextElementSibling && end.nextElementSibling.tagName !== 'H2') end = end.nextElementSibling;
+    if (end) end.insertAdjacentHTML('afterend', fbWidget(section));
+  });
+
+  async function loadFb(){
+    try {
+      const r = await fetch('/api/ds-feedback'); const d = await r.json();
+      const bySection = {};
+      (d.items||[]).forEach(i => { (bySection[i.section] = bySection[i.section]||[]).push(i); });
+      document.querySelectorAll('.fb').forEach(el => {
+        const items = bySection[el.dataset.section] || [];
+        const id = el.dataset.section.replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+        const list = document.getElementById('fb-list-'+id);
+        if (list) list.innerHTML = items.map(i =>
+          `<div class="fb-item"><b>${esc2(i.name)}</b> · ${new Date(i.at).toLocaleDateString()} ${i.status==='done'?'<span class="done">✓ applied</span>':''}<br>${esc2(i.text)}</div>`).join('');
+        if (items.length) el.querySelector('summary').textContent = `Feedback on "${el.dataset.section}" (${items.length})`;
+      });
+    } catch(e) {}
+  }
+  async function sendFb(section, id){
+    const text = document.getElementById('fb-text-'+id).value.trim();
+    const name = document.getElementById('fb-name-'+id).value.trim();
+    const st = document.getElementById('fb-status-'+id);
+    if (!text) { st.textContent = 'Write something first.'; return; }
+    st.textContent = 'Sending…';
+    try {
+      const r = await fetch('/api/ds-feedback', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({section, name, text}) });
+      const d = await r.json();
+      if (d.ok) { st.textContent = '✓ Sent — the agent will pick it up.'; document.getElementById('fb-text-'+id).value=''; loadFb(); }
+      else st.textContent = '⚠ ' + (d.error||'failed');
+    } catch(e){ st.textContent = '⚠ ' + e.message; }
+  }
+  loadFb();
 </script>
 <div class="lightbox" id="lightbox" onclick="closeLightbox()"><span class="x">×</span><img id="lb-img" src="" alt=""></div>
 </body></html>

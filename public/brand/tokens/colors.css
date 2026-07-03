@@ -4,14 +4,20 @@
    ============================================================ */
 :root {
   /* --- Brand core --- */
+  /* Michal (2026-07-03): exactly TWO shades of red — no more. Use intensity
+     steps (opacity) of these two when a scale is needed. */
   --rb-red: #e30613;          /* signal red — sampled from logo */
-  --rb-red-bright: #ff1a26;   /* hot accent / hover lift */
   --rb-red-dark: #b30410;     /* pressed / deep red */
-  --rb-red-darker: #7d0309;   /* darkest red, on-black accents */
+  --rb-red-bright: var(--rb-red);      /* deprecated alias — collapsed to signal red */
+  --rb-red-darker: var(--rb-red-dark); /* deprecated alias — collapsed to deep red */
 
   --rb-black: #000000;        /* logo black, hard contrast */
   --rb-ink: #121212;          /* default text ink, slightly softer */
   --rb-white: #ffffff;
+  /* Creamy white background (Michal 2026-07-03): backgrounds are not pure
+     white — they carry a cream shade. PROVISIONAL value; Michal will send the
+     exact hex — replace when it lands. */
+  --rb-cream: #f6f2ea;
 
   /* --- Neutrals (cool-grey, chalk/granite) --- */
   --rb-grey-950: #0d0d0d;
@@ -46,7 +52,7 @@
   --text-accent: var(--rb-red);
 
   --surface-page: var(--rb-white);
-  --surface-subtle: var(--rb-grey-50);
+  --surface-subtle: var(--rb-cream);
   --surface-card: var(--rb-white);
   --surface-inverse: var(--rb-black);
   --surface-inverse-2: var(--rb-grey-900);

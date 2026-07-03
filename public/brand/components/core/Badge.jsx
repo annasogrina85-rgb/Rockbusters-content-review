@@ -7,7 +7,7 @@ export function Badge({ variant = "red", shape = "pill", children, style = {}, .
   const variants = {
     red: { background: "var(--color-accent)", color: "var(--color-on-accent)" },
     black: { background: "var(--rb-black)", color: "var(--rb-white)" },
-    outline: { background: "transparent", color: "var(--text-primary)", boxShadow: "inset 0 0 0 var(--border-width-bold) var(--border-strong)" },
+    outline: { background: "transparent", color: "var(--text-primary)", boxShadow: "inset 0 0 0 var(--border-width) var(--border-strong)" },
     light: { background: "var(--rb-grey-100)", color: "var(--text-primary)" },
   };
 
@@ -19,7 +19,7 @@ export function Badge({ variant = "red", shape = "pill", children, style = {}, .
         gap: "0.35em",
         fontFamily: "var(--font-display)",
         fontWeight: "var(--fw-bold)",
-        fontSize: "0.6875rem",
+        fontSize: "0.8125rem", // Michal 2026-07-03: same size as Tag — one size for all pills
         textTransform: "uppercase",
         letterSpacing: "0.08em",
         lineHeight: 1,

@@ -1,20 +1,33 @@
-<!-- @dsCard group="Colors" viewport="700x130" name="Red scale" subtitle="Hover, press & deep-red accents" -->
+<!-- @dsCard group="Colors" viewport="700x200" name="Red scale" subtitle="Two reds only — intensity steps when a scale is needed" -->
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8" />
 <link rel="stylesheet" href="../styles.css" />
 <style>
   body { margin:0; font-family:var(--font-body); background:var(--surface-page); }
-  .row { display:flex; padding:20px; gap:0; }
+  .wrap { padding:18px 20px; }
+  .lbl { font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:11px; margin:10px 0 6px; }
+  .row { display:flex; gap:0; }
   .cell { flex:1; }
-  .chip { height:64px; }
-  .name { font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:11px; margin-top:8px; }
-  .hex { font-size:11px; color:var(--text-secondary); }
+  .chip { height:40px; }
+  .pct { font-size:10px; color:var(--text-secondary); margin-top:3px; }
 </style></head>
 <body>
-  <div class="row">
-    <div class="cell"><div class="chip" style="background:var(--rb-red-bright);"></div><div class="name">Bright</div><div class="hex">#FF1A26</div></div>
-    <div class="cell"><div class="chip" style="background:var(--rb-red);"></div><div class="name">Red</div><div class="hex">#E30613</div></div>
-    <div class="cell"><div class="chip" style="background:var(--rb-red-dark);"></div><div class="name">Dark</div><div class="hex">#B30410</div></div>
-    <div class="cell"><div class="chip" style="background:var(--rb-red-darker);"></div><div class="name">Darker</div><div class="hex">#7D0309</div></div>
+  <div class="wrap">
+    <div class="lbl">Signal red · --rb-red · #E30613</div>
+    <div class="row">
+      <div class="cell"><div class="chip" style="background:rgba(227,6,19,1);"></div><div class="pct">100%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(227,6,19,.8);"></div><div class="pct">80%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(227,6,19,.6);"></div><div class="pct">60%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(227,6,19,.4);"></div><div class="pct">40%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(227,6,19,.2);"></div><div class="pct">20%</div></div>
+    </div>
+    <div class="lbl">Deep red · --rb-red-dark · #B30410</div>
+    <div class="row">
+      <div class="cell"><div class="chip" style="background:rgba(179,4,16,1);"></div><div class="pct">100%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(179,4,16,.8);"></div><div class="pct">80%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(179,4,16,.6);"></div><div class="pct">60%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(179,4,16,.4);"></div><div class="pct">40%</div></div>
+      <div class="cell"><div class="chip" style="background:rgba(179,4,16,.2);"></div><div class="pct">20%</div></div>
+    </div>
   </div>
 </body></html>

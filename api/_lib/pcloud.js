@@ -159,7 +159,7 @@ export async function downloadFile(fileId) {
  * candidates: [{ name, fileId, size }]  (already filtered/sorted by caller)
  * Returns the chosen candidate, or the first one if vision fails.
  */
-export async function pickBestPhotoWithVision(client, candidates, { brief = '', prefer = 'a sharp shot with people climbing or a real action/candid moment' } = {}) {
+export async function pickBestPhotoWithVision(client, candidates, { brief = '', prefer = 'a sharp shot with a person climbing, the person FULLY visible in frame (not cropped, not covered), or a real action/candid moment' } = {}) {
   const sample = candidates.slice(0, 8); // cap for request size
   const images = [];
   for (let i = 0; i < sample.length; i++) {
