@@ -226,6 +226,7 @@
     .status-badge.rejected { color: #cc5c5c; }
     .status-badge.needs_revision { color: #ccaa44; }
     .status-badge.pending { color: #555; }
+    .status-badge.archived { color: #777; }
 
     /* ── Photo ── */
     .photo-container {
@@ -1724,12 +1725,35 @@ function renderPlan() {
       <p style="font-size:12px;color:#555;margin-top:4px">Add comments below — the agent picks them up in the morning and adjusts content accordingly.</p>
     </div>
     ${planReviewBlock()}
+    ${scheduleSection()}
     ${planSection('Upcoming camps', '📅', campsRows)}
     ${planSection('Posts', '📝', postsRows)}
     ${planSection('Highlights', '⭐', highlightRows)}
     ${planSection('Info needed', '📋', infoRows)}
     ${recapSection()}
   `;
+}
+
+function scheduleSection() {
+  const items = (planData && planData.posting_schedule) || [];
+  if (!items.length) return '';
+  const today = new Date().toISOString().slice(0,10);
+  const rows = items.map(i => {
+    const past = i.date < today;
+    const next = !past && items.filter(x => x.date >= today)[0] === i;
+    return `<div style="display:flex;gap:14px;align-items:flex-start;background:${next ? '#1d1512' : '#161616'};border:1px solid ${next ? '#5a2a1a' : '#242424'};border-radius:8px;padding:12px 16px;margin-bottom:8px;${past ? 'opacity:.55' : ''}">
+      <div style="min-width:92px;font-weight:700;color:${next ? '#e30613' : '#aaa'};font-size:13px">${i.date}${next ? '<div style="font-size:10px;color:#e30613">NEXT UP</div>' : ''}</div>
+      <div>
+        <div style="font-size:13px;color:#f0f0f0">${i.label}</div>
+        ${i.note ? `<div style="font-size:11px;color:#777;margin-top:3px">${i.note}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  return `
+    <div style="margin:0 0 8px">
+      <h3 style="font-size:13px;font-weight:700;letter-spacing:0.05em;color:#e30613;text-transform:uppercase">🗓 Posting schedule</h3>
+      <p style="font-size:11px;color:#666;margin:4px 0 10px">Mon / Wed / Fri cadence. Story first, then proof, announcements from September.</p>
+    </div>${rows}`;
 }
 
 function planReviewBlock() {

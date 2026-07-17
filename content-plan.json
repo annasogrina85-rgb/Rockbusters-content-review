@@ -1,34 +1,6 @@
 {
-  "updated": "2026-06-03",
+  "updated": "2026-07-17",
   "upcoming_camps": [
-    {
-      "name": "Sport Climbing Basics",
-      "coach": "Laszlo & Petra",
-      "date": "2026-06-06",
-      "location": "Frankenjura",
-      "url": "https://rockbusters.net"
-    },
-    {
-      "name": "DEEP BLUE (Psicobloc)",
-      "coach": "Arturo",
-      "date": "2026-06-06",
-      "location": "Mallorca",
-      "url": "https://rockbusters.net"
-    },
-    {
-      "name": "Dolomite Dolce Vita",
-      "coach": "Klemen Becan",
-      "date": "2026-06-27",
-      "location": "Dolomites",
-      "url": "https://rockbusters.net"
-    },
-    {
-      "name": "Summer Youth Rock Lab",
-      "coach": "TBC",
-      "date": "2026-07-04",
-      "location": "Cavallers, Spain",
-      "url": "https://rockbusters.net"
-    },
     {
       "name": "A MUERTE",
       "coach": "Petra & Jany",
@@ -106,105 +78,116 @@
       "type": "highlight_cover",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-26"
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18"
     },
     {
       "name": "sport_basics_announcement",
       "type": "carousel",
-      "status": "pending_review",
+      "status": "archived",
       "blocker": null,
-      "publish_after": "2026-05-27"
+      "archived_reason": "Camp passed (Jun 6)"
     },
     {
       "name": "deep_blue_announcement",
       "type": "carousel",
-      "status": "pending_review",
-      "blocker": "Need Mallorca/psicobloc photos from Arturo",
-      "publish_after": "2026-05-28"
+      "status": "archived",
+      "blocker": null,
+      "archived_reason": "Camp passed (Jun 6)"
     },
     {
       "name": "dolce_vita_announcement",
       "type": "carousel",
-      "status": "pending_review",
-      "blocker": "Need Dolomites photos — not in library yet",
-      "publish_after": "2026-05-29"
+      "status": "archived",
+      "blocker": null,
+      "archived_reason": "Camp passed (Jun 27)"
     },
     {
       "name": "youth_camp_announcement",
       "type": "carousel",
-      "status": "pending_review",
+      "status": "archived",
       "blocker": null,
-      "publish_after": "2026-05-30"
+      "archived_reason": "Camp passed (Jul 4)"
     },
     {
       "name": "anna_story_post",
       "type": "quote_card",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-28"
+      "publish_after": "2026-07-31",
+      "publish_on": "2026-07-31"
     },
     {
       "name": "participant_breakthrough",
       "type": "quote_card",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-27"
+      "publish_after": "2026-07-27",
+      "publish_on": "2026-07-27"
     },
     {
       "name": "highlight_coaches",
       "type": "highlight_cover",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-26"
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18"
     },
     {
       "name": "highlight_destinations",
       "type": "highlight_cover",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-26"
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18"
     },
     {
       "name": "highlight_community",
       "type": "highlight_cover",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-26"
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18"
     },
     {
       "name": "highlight_rodellar",
       "type": "highlight_cover",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-26"
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18"
     },
     {
       "name": "camp_week_story",
       "type": "carousel",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-05-31"
+      "publish_after": "2026-07-22",
+      "publish_on": "2026-07-22"
     },
     {
       "name": "dolomites_story",
       "type": "carousel",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-06-01"
+      "publish_after": "2026-07-29",
+      "publish_on": "2026-07-29"
     },
     {
       "name": "jany_founding_story",
       "type": "story_frame",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-06-02"
+      "publish_after": "2026-07-20",
+      "publish_on": "2026-07-20"
     },
     {
       "name": "rodellar_story",
       "type": "carousel",
       "status": "pending_review",
       "blocker": null,
-      "publish_after": "2026-06-04"
+      "publish_after": "2026-07-24",
+      "publish_on": "2026-07-24"
     }
   ],
   "info_needed": [
@@ -237,6 +220,86 @@
       "from": "Anna",
       "what": "Review the generated post — based on your Rodellar interview answers. Confirm or edit before publishing.",
       "for": "anna_story_post"
+    }
+  ],
+  "past_camps": [
+    {
+      "name": "Sport Climbing Basics",
+      "coach": "Laszlo & Petra",
+      "date": "2026-06-06",
+      "location": "Frankenjura",
+      "url": "https://rockbusters.net"
+    },
+    {
+      "name": "DEEP BLUE (Psicobloc)",
+      "coach": "Arturo",
+      "date": "2026-06-06",
+      "location": "Mallorca",
+      "url": "https://rockbusters.net"
+    },
+    {
+      "name": "Dolomite Dolce Vita",
+      "coach": "Klemen Becan",
+      "date": "2026-06-27",
+      "location": "Dolomites",
+      "url": "https://rockbusters.net"
+    },
+    {
+      "name": "Summer Youth Rock Lab",
+      "coach": "TBC",
+      "date": "2026-07-04",
+      "location": "Cavallers, Spain",
+      "url": "https://rockbusters.net"
+    }
+  ],
+  "posting_schedule": [
+    {
+      "date": "2026-07-18",
+      "name": "highlights_setup",
+      "label": "Set up 6 Instagram Highlights (covers: Story, Coaches, Destinations, Community, Rodellar, Upcoming)",
+      "note": "Not feed posts — publish all covers to profile Highlights in one go"
+    },
+    {
+      "date": "2026-07-20",
+      "name": "jany_founding_story",
+      "label": "Jany founding story — how Rockbusters started",
+      "note": "Opener: the story"
+    },
+    {
+      "date": "2026-07-22",
+      "name": "camp_week_story",
+      "label": "A week at a Rockbusters camp",
+      "note": "What we actually do"
+    },
+    {
+      "date": "2026-07-24",
+      "name": "rodellar_story",
+      "label": "Rodellar — the home crag",
+      "note": "Where it happens"
+    },
+    {
+      "date": "2026-07-27",
+      "name": "participant_breakthrough",
+      "label": "Participant breakthrough (quote)",
+      "note": "Proof it works"
+    },
+    {
+      "date": "2026-07-29",
+      "name": "dolomites_story",
+      "label": "Dolomites story",
+      "note": "Destinations"
+    },
+    {
+      "date": "2026-07-31",
+      "name": "anna_story_post",
+      "label": "Anna's story",
+      "note": "NEEDS YOUR APPROVAL first — still pending_review"
+    },
+    {
+      "date": "2026-09-01",
+      "name": "a_muerte_announcement",
+      "label": "A MUERTE announcement (Oct 24, Petra & Jany)",
+      "note": "To be generated — promo window opens September"
     }
   ]
 }
