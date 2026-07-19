@@ -188,6 +188,60 @@
       "blocker": null,
       "publish_after": "2026-07-24",
       "publish_on": "2026-07-24"
+    },
+    {
+      "name": "hl_story",
+      "type": "story_sequence",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18",
+      "note": "Frames for the 'Story' Instagram Highlight"
+    },
+    {
+      "name": "hl_coaches",
+      "type": "story_sequence",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18",
+      "note": "Frames for the 'Coaches' Instagram Highlight"
+    },
+    {
+      "name": "hl_destinations",
+      "type": "story_sequence",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18",
+      "note": "Frames for the 'Destinations' Instagram Highlight"
+    },
+    {
+      "name": "hl_community",
+      "type": "story_sequence",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18",
+      "note": "Frames for the 'Community' Instagram Highlight"
+    },
+    {
+      "name": "hl_rodellar",
+      "type": "story_sequence",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18",
+      "note": "Frames for the 'Rodellar' Instagram Highlight"
+    },
+    {
+      "name": "hl_upcoming",
+      "type": "story_sequence",
+      "status": "pending_review",
+      "blocker": null,
+      "publish_after": "2026-07-18",
+      "publish_on": "2026-07-18",
+      "note": "Frames for the 'Upcoming' Instagram Highlight"
     }
   ],
   "info_needed": [
@@ -256,8 +310,8 @@
     {
       "date": "2026-07-18",
       "name": "highlights_setup",
-      "label": "Set up 6 Instagram Highlights (covers: Story, Coaches, Destinations, Community, Rodellar, Upcoming)",
-      "note": "Not feed posts — publish all covers to profile Highlights in one go"
+      "label": "Set up 6 Instagram Highlights: covers + story frames (hl_story, hl_coaches, hl_destinations, hl_community, hl_rodellar, hl_upcoming)",
+      "note": "Not feed posts. Approve the 6 frame sequences in DRAFTS first, then publish frames to each Highlight in order + set the cover."
     },
     {
       "date": "2026-07-20",

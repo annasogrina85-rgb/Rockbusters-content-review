@@ -214,6 +214,7 @@
     .badge.quote_card { background: #2a1a4a; color: #aa88ff; }
     .badge.highlight_cover { background: #1a3a2a; color: #66cc99; }
     .badge.story_frame { background: #3a2a1a; color: #ffaa66; }
+    .badge.story_sequence { background: #1a2a3a; color: #66aaff; }
 
     .status-badge {
       font-size: 11px;
@@ -1033,6 +1034,12 @@ function renderCard(draft) {
 
   // ── Photo area ──
   let photoArea = '';
+
+  if (type === 'story_sequence' && draft.frames?.length) {
+    // map story frames onto the carousel strip renderer
+    draft = { ...draft, slides: draft.frames.map(fr => ({ photo: fr.photo, label: fr.eyebrow, headline: fr.headline, body: fr.body })) };
+    type = 'carousel';
+  }
 
   if (type === 'carousel' && draft.slides?.length) {
     const slide = draft.slides[activeSlide] || draft.slides[0];
