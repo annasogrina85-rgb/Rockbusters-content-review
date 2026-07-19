@@ -1027,6 +1027,7 @@ function renderSlideContent(slide, index) {
 function renderCard(draft) {
   const name = draft.name;
   let type = draft.type;
+  const origType = draft.type;
   const meta = draft._meta || {};
   const status = meta.status || 'pending';
   const comments = meta.comments || [];
@@ -1204,7 +1205,7 @@ function renderCard(draft) {
           <div class="card-meta">v${meta.version || 1} · ${timeAgo(meta.generated_at)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-          <span class="badge ${type}">${type.replace(/_/g, ' ')}</span>
+          <span class="badge ${origType}">${origType.replace(/_/g, ' ')}</span>
           <span class="status-badge ${status}">${status.replace(/_/g, ' ')}</span>
         </div>
       </div>
