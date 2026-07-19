@@ -132,6 +132,116 @@ async function swapCoverPhoto(client, name, draft, usedNames, hint = '') {
   return { ok: true, file: picked.name, folder: resolved.label };
 }
 
+/**
+ * Swap ONE frame's photo in a story sequence. The frame's source folder comes
+ * from _pcloud_paths["frames.N"] ("pcloud:<label>/<file>" or "photos/jany/<folder>/<file>").
+ * `want` is what the reviewer asked the photo to show — it steers the vision pick.
+ */
+async function swapFramePhoto(client, name, draft, idx, want, usedNames) {
+  const frame = draft.frames?.[idx];
+  if (!frame) return { ok: false, frame: idx, reason: 'no such frame' };
+
+  const pathVal = String(draft._meta?._pcloud_paths?.[`frames.${idx}`] || '');
+  const label = pathVal.match(/^pcloud:([^/]+)\//)?.[1]
+    || pathVal.match(/^photos\/jany\/([^/]+)\//)?.[1]
+    || folderKeyFromDraft(draft);
+  if (!label) return { ok: false, frame: idx, reason: 'no folder info for frame' };
+
+  const resolved = await resolveCampFolderId(label);
+  if (!resolved) return { ok: false, frame: idx, reason: `no pCloud folder for "${label}"` };
+
+  const all = await listFolderImages(resolved.folderId);
+  if (!all.length) return { ok: false, frame: idx, reason: 'folder has no images' };
+
+  const norm = s => String(s).toLowerCase().replace(/[ _]+/g, '_');
+  const usedNorm = new Set([...usedNames].map(norm));
+  let pool = all.filter(f => !usedNorm.has(norm(f.name)));
+  if (pool.length < 3) pool = all;
+  pool.sort((a, b) => b.size - a.size);
+
+  const picked = await pickBestPhotoWithVision(client, pool.slice(0, 8), {
+    brief: `${frame.headline || ''} — ${frame.body || ''}`.slice(0, 160),
+    prefer: want || 'a sharp climbing action shot, person fully visible',
+  });
+
+  const buf = await webImage(picked.fileId, '1280x1280');
+  const { url } = await put(`drafts/${name}/frame${idx}_${Date.now()}.jpg`, buf, {
+    access: 'public', addRandomSuffix: false, token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
+  frame.photo = url;
+  draft._meta._pcloud_paths[`frames.${idx}`] = `pcloud:${label}/${picked.name}`;
+  usedNames.add(picked.name);
+  return { ok: true, frame: idx, file: picked.name, folder: resolved.label };
+}
+
+/**
+ * Regenerate a story sequence (Highlight frames): one model call interprets the
+ * feedback — revised frame TEXT plus per-frame PHOTO requests ("первое фото…"
+ * → frame 0, with an English description of what the photo should show).
+ */
+async function regenSequence(client, name, obj, comments, usedNames) {
+  const framesText = obj.frames.map((f, i) => ({
+    frame: i, eyebrow: f.eyebrow || '', headline: f.headline || '', body: f.body || '', ...(f.cta ? { cta: f.cta } : {}),
+  }));
+
+  const prompt = `This is an Instagram Highlight story sequence (photos are managed separately):
+
+${JSON.stringify(framesText, null, 2)}
+
+Reviewer feedback (may be in Russian; frame references may be 1-based — "первое фото" = frame 0):
+${comments.map((c, i) => `${i + 1}. "${c.text}"`).join('\n')}
+
+Return ONLY JSON:
+{"frames":[same count and keys, text revised ONLY where the feedback asks for text changes],
+ "photo_requests":[{"frame":<0-based index>,"want":"<specific English description of what the photo must show>"}]}
+If a comment is only about a photo, leave that frame's text unchanged and add a photo_request.`;
+
+  const resp = await client.messages.create({
+    model: MODEL, max_tokens: 2500, thinking: { type: 'adaptive' },
+    system: [{ type: 'text', text: TONE, cache_control: { type: 'ephemeral' } }],
+    messages: [{ role: 'user', content: prompt }],
+  });
+  const tb = resp.content.find(b => b.type === 'text');
+  const m = tb?.text.match(/\{[\s\S]*\}/);
+  if (!m) return { name, error: 'sequence regen returned non-JSON' };
+  let parsed;
+  try { parsed = JSON.parse(m[0]); } catch (e) { return { name, error: 'sequence JSON parse failed: ' + e.message }; }
+
+  // Merge revised frame text (photos untouched here)
+  const FRAME_TEXT_KEYS = ['eyebrow', 'headline', 'body', 'cta'];
+  if (Array.isArray(parsed.frames)) {
+    obj.frames.forEach((f, i) => {
+      const r = parsed.frames[i];
+      if (!r) return;
+      for (const k of FRAME_TEXT_KEYS) if (typeof r[k] === 'string') f[k] = r[k];
+    });
+  }
+
+  // Per-frame photo swaps
+  const swaps = [];
+  for (const req of (parsed.photo_requests || []).slice(0, 8)) {
+    if (!Number.isInteger(req.frame)) continue;
+    try { swaps.push(await swapFramePhoto(client, name, obj, req.frame, req.want, usedNames)); }
+    catch (e) { swaps.push({ ok: false, frame: req.frame, reason: e.message }); }
+  }
+  const failed = swaps.filter(s => !s.ok);
+
+  const prevVersion = obj._meta.version || 1;
+  obj._meta.version = prevVersion + 1;
+  obj._meta.status = 'pending_review';
+  obj._meta.comments_history = [
+    ...(obj._meta.comments_history || []),
+    ...comments.map(c => ({ ...c, addressed_in_version: prevVersion + 1 })),
+  ];
+  obj._meta.comments = failed.length
+    ? [{ text: `⚠️ Photo swap failed for frame(s) ${failed.map(f => f.frame + 1).join(', ')} (${failed[0].reason}) — change manually`, at: new Date().toISOString(), system: true }]
+    : [];
+  obj._meta.last_regen = new Date().toISOString();
+
+  await kv.set(`draft:${name}`, JSON.stringify(obj));
+  return { name, ok: true, version: obj._meta.version, sequence: true, photoSwaps: swaps };
+}
+
 async function regenOne(client, name, usedNames) {
   const draft = await kv.get(`draft:${name}`);
   const obj = typeof draft === 'string' ? JSON.parse(draft) : draft;
@@ -139,6 +249,12 @@ async function regenOne(client, name, usedNames) {
 
   const comments = humanComments(obj._meta);
   if (!comments.length) return { name, skipped: 'no human comments' };
+
+  // Story sequences (Highlight frames) take their own path: frame-level text
+  // revision + per-frame vision photo swaps.
+  if (Array.isArray(obj.frames) && obj.frames.length) {
+    return regenSequence(client, name, obj, comments, usedNames);
+  }
 
   const photoRequested = comments.some(c => PHOTO_HINT.test(c.text));
 

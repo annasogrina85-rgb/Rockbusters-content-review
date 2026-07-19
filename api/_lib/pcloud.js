@@ -10,11 +10,21 @@
 const PCLOUD_CODE = process.env.PCLOUD_CODE || 'kZe3ow7ZRNou6K5SCb4vpyjthO1rmkl4WL2X';
 const API = 'https://api.pcloud.com';
 
-// Known location → pCloud folderId (fast path; fuzzy search covers the rest)
+// Known location → pCloud folderId (fast path; fuzzy search covers the rest).
+// Includes the labels used by highlight story-sequences (_pcloud_paths "pcloud:<label>/…").
 const KNOWN_FOLDERS = {
   mallorca: '2292119458',
   dolomity: '21088910077',
   dolomites: '21088910077',
+  rodellar_root: '2594837373',
+  rodellar: '2594837373',
+  rodellar_2025: '26258372461',
+  rodellar_may: '31399955350',
+  frankenjura: '4291874829',
+  klemen: '15557205995',
+  sella_beg: '25839086901',
+  sella: '3241020398',
+  selection: '2284543753',
 };
 
 const IMAGE_EXT = /\.(jpe?g|png|heic|webp)$/i;
