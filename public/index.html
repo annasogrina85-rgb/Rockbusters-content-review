@@ -1026,7 +1026,7 @@ function renderSlideContent(slide, index) {
 
 function renderCard(draft) {
   const name = draft.name;
-  const type = draft.type;
+  let type = draft.type;
   const meta = draft._meta || {};
   const status = meta.status || 'pending';
   const comments = meta.comments || [];
