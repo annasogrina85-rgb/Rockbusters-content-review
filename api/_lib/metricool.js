@@ -56,16 +56,15 @@ export async function listBrands() {
   return mcRequest('/admin/simpleProfiles');
 }
 
-/** Public image URLs for a draft, in publish order. */
+/**
+ * Publish-ready image URLs, in order.
+ * ONLY `draft.rendered` counts — those are the branded images produced from the
+ * design-system templates (logo, headline, red accents). The raw photos on
+ * slides/frames are pre-branding source material and must never be published.
+ */
 function mediaFor(draft) {
-  if (Array.isArray(draft.frames) && draft.frames.length) {
-    return draft.frames.map(f => f.photo).filter(u => typeof u === 'string' && u.startsWith('http'));
-  }
-  if (Array.isArray(draft.slides) && draft.slides.length) {
-    const urls = draft.slides.map(s => s.photo).filter(u => typeof u === 'string' && u.startsWith('http'));
-    if (urls.length) return urls;
-  }
-  return [draft.photo].filter(u => typeof u === 'string' && u.startsWith('http'));
+  const rendered = Array.isArray(draft.rendered) ? draft.rendered : [];
+  return rendered.filter(u => typeof u === 'string' && u.startsWith('http'));
 }
 
 /**
@@ -74,7 +73,7 @@ function mediaFor(draft) {
  */
 export function buildPayloads(draft, dateISO, { time = DEFAULT_TIME, asDraft = true } = {}) {
   const media = mediaFor(draft);
-  if (!media.length) return { error: 'no public image URLs on draft' };
+  if (!media.length) return { error: 'no branded images (draft.rendered empty)' };
 
   const base = {
     providers: [{ network: 'instagram' }],
@@ -130,7 +129,7 @@ export async function planRows() {
     if (status !== 'approved') { rows.push({ ...item, status, skip: `not approved (${status})` }); continue; }
 
     const built = buildPayloads(d, item.date);
-    if (built.error) { rows.push({ ...item, status, skip: built.error }); continue; }
+    if (built.error) { rows.push({ ...item, status, skip: built.error + ' — run the branded render step first' }); continue; }
     rows.push({ ...item, status, type: d.type, images: built.posts.reduce((n, p) => n + p.media.length, 0), posts: built.posts });
   }
   return rows;
